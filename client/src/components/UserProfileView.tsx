@@ -4,6 +4,7 @@ import {
 } from 'lucide-react';
 import { UserProfile, TravelItinerary, Currency } from '../types/travel';
 import { CURRENT_USER } from '../data/mockData';
+import { LazyCountryTrackerMap } from './LazyCountryTrackerMap';
 
 interface UserProfileViewProps {
   user: UserProfile;
@@ -193,7 +194,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
               <Globe className="w-5 h-5 text-emerald-600" /> Interactive Visited Countries Tracker
             </h3>
             <p className="text-xs text-stone-500 dark:text-stone-400">
-              Click any country to mark it as visited. Your globe stats update dynamically!
+              Click a country on the map or a chip below to mark it as visited. Your globe stats update dynamically!
             </p>
 
             {/* Progress Bar */}
@@ -204,6 +205,8 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
               />
             </div>
           </div>
+
+          <LazyCountryTrackerMap visited={visited} onToggleCountry={toggleVisitedCountry} height="420px" />
 
           {/* Add Custom Country Input */}
           <div className="flex items-center gap-2 max-w-md">

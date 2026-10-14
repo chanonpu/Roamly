@@ -11,6 +11,7 @@ interface DiscoverViewProps {
   currency: Currency;
   searchQuery: string;
   onSelectDestination: (destination: Destination) => void;
+  visitedCountries?: string[];
 }
 
 // Extracted + memoized so re-renders of the parent (e.g. currency swap)
@@ -66,7 +67,7 @@ const DestinationCard = React.memo(function DestinationCard({
 });
 
 export const DiscoverView: React.FC<DiscoverViewProps> = ({
-  destinations, currency, searchQuery, onSelectDestination,
+  destinations, currency, searchQuery, onSelectDestination, visitedCountries,
 }) => {
   const debouncedQuery = useDebouncedValue(searchQuery, 200);
 
@@ -97,7 +98,15 @@ export const DiscoverView: React.FC<DiscoverViewProps> = ({
         </p>
       </div>
 
-      <InteractiveMap destinations={filtered} onSelectDestination={onSelectDestination} height="420px" />
+      <div className="space-y-2">
+        <InteractiveMap destinations={filtered} onSelectDestination={onSelectDestination} visitedCountries={visitedCountries} height="420px" />
+        {visitedCountries && visitedCountries.length > 0 && (
+          <p className="flex items-center gap-1.5 text-xs font-semibold text-stone-500 dark:text-stone-400">
+            <span className="inline-block w-3 h-3 rounded-sm bg-emerald-600/60 border border-emerald-700" />
+            Countries you've visited ({visitedCountries.length})
+          </p>
+        )}
+      </div>
 
       {filtered.length === 0 ? (
         <div className="text-center py-16 text-stone-400 text-sm flex flex-col items-center gap-2">

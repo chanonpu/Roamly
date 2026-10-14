@@ -17,6 +17,7 @@ interface LazyInteractiveMapProps {
   zoom?: number;
   onSelectDestination?: (dest: Destination) => void;
   height?: string;
+  visitedCountries?: string[];
 }
 
 function MapSkeleton({ height = '500px' }: { height?: string }) {

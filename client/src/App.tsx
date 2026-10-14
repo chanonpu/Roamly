@@ -338,6 +338,7 @@ export default function App() {
                 currency={selectedCurrency}
                 searchQuery={searchQuery}
                 onSelectDestination={selectDestination}
+                visitedCountries={auth.isSignedIn ? currentUser?.visitedCountries : undefined}
               />
             )}
 

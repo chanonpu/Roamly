@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import { Destination, Activity } from '../types/travel';
 import { escapeHtml } from '../lib/sanitize';
+import { loadWorldGeo, isVisited, VISITED_STYLE } from '../lib/worldGeo';
 
 interface InteractiveMapProps {
   destinations?: Destination[];
@@ -10,6 +11,7 @@ interface InteractiveMapProps {
   zoom?: number;
   onSelectDestination?: (dest: Destination) => void;
   height?: string;
+  visitedCountries?: string[];
 }
 
 const InteractiveMapImpl: React.FC<InteractiveMapProps> = ({
@@ -18,7 +20,8 @@ const InteractiveMapImpl: React.FC<InteractiveMapProps> = ({
   center = [20, 0],
   zoom = 2,
   onSelectDestination,
-  height = '500px'
+  height = '500px',
+  visitedCountries
 }) => {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const leafletInstance = useRef<L.Map | null>(null);
@@ -47,6 +50,21 @@ const InteractiveMapImpl: React.FC<InteractiveMapProps> = ({
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 18,
     }).addTo(map);
+
+    // Shade the signed-in user's visited countries beneath the pins.
+    let cancelled = false;
+    if (visitedCountries && visitedCountries.length > 0) {
+      loadWorldGeo()
+        .then(geo => {
+          if (cancelled) return;
+          L.geoJSON(geo, {
+            filter: feature => isVisited(String(feature.properties?.name ?? ''), visitedCountries),
+            style: VISITED_STYLE,
+            interactive: false
+          }).addTo(map);
+        })
+        .catch(() => { /* overlay is decorative; the map still works without it */ });
+    }
 
     // Color helper for pins
     const getCategoryColor = (cat: string) => {
@@ -165,13 +183,14 @@ const InteractiveMapImpl: React.FC<InteractiveMapProps> = ({
     }
 
     return () => {
+      cancelled = true;
       if (leafletInstance.current) {
         leafletInstance.current.remove();
         leafletInstance.current = null;
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [destinations, activities, center, zoom, onSelectDestination]);
+  }, [destinations, activities, center, zoom, onSelectDestination, visitedCountries]);
 
   return (
     <div className="relative isolate w-full rounded-2xl overflow-hidden border border-stone-200 dark:border-stone-800 shadow-md">
