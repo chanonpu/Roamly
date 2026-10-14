@@ -9,6 +9,7 @@ import { TravelItinerary, Activity, TimeOfDay, TravelCategory, Currency } from '
 import { LazyInteractiveMap as InteractiveMap } from './LazyInteractiveMap';
 import { api } from '../lib/api';
 import { formatCurrency } from '../lib/format';
+import { safeUrl } from '../lib/sanitize';
 
 interface ItineraryViewProps {
   itinerary: TravelItinerary;
@@ -94,8 +95,8 @@ const ActivityCard = React.memo(function ActivityCard({
         {activity.description}
       </p>
 
-      {activity.googleMapsUrl && (
-        <a href={activity.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-700 dark:text-sky-400 hover:underline pt-1">
+      {safeUrl(activity.googleMapsUrl) && (
+        <a href={safeUrl(activity.googleMapsUrl)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-700 dark:text-sky-400 hover:underline pt-1">
           <Compass className="w-3 h-3" /> View in Google Maps
         </a>
       )}
@@ -594,6 +595,7 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({
                   type="text"
                   value={newActTitle}
                   onChange={e => setNewActTitle(e.target.value)}
+                  maxLength={200}
                   placeholder="e.g. Sunset Cafe & Jazz Lounge"
                   className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100"
                 />
@@ -619,6 +621,7 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({
                     type="number"
                     value={newActCost}
                     onChange={e => setNewActCost(Number(e.target.value))}
+                    min={0}
                     className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100"
                   />
                 </div>
@@ -630,6 +633,7 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({
                   type="text"
                   value={newActLocation}
                   onChange={e => setNewActLocation(e.target.value)}
+                  maxLength={200}
                   placeholder="Specific street or spot name"
                   className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100"
                 />
@@ -640,6 +644,7 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({
                 <textarea
                   value={newActDesc}
                   onChange={e => setNewActDesc(e.target.value)}
+                  maxLength={2000}
                   placeholder="Notes, tips, or what to expect..."
                   rows={2}
                   className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100"
@@ -691,6 +696,7 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({
           <textarea
             value={newCommentText}
             onChange={e => setNewCommentText(e.target.value)}
+            maxLength={2000}
             placeholder="Share your feedback, tips, or questions about this itinerary..."
             rows={2}
             className="w-full p-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-xs text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-sky-600/40"

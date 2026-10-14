@@ -61,8 +61,11 @@ class SupabaseStore {
   async listItineraries(params?: { search?: string; category?: string; sort?: string }): Promise<TravelItinerary[]> {
     let query = supabaseAdmin.from('travel_plans').select('*').eq('is_published', true);
 
-    if (params?.search) {
-      const q = `%${params.search}%`;
+    // Strip PostgREST filter syntax (commas/parens split and nest `.or()`
+    // conditions; `*`/`%` are wildcards) so search can't inject filters.
+    const search = params?.search?.replace(/[,()*%\\]/g, ' ').trim().slice(0, 100);
+    if (search) {
+      const q = `%${search}%`;
       query = query.or(`title.ilike.${q},destination.ilike.${q},country.ilike.${q}`);
     }
     if (params?.category && params.category !== 'All') {
@@ -74,7 +77,7 @@ class SupabaseStore {
     else if (params?.sort === 'recent') query = query.order('created_at', { ascending: false });
     else query = query.order('likes_count', { ascending: false });
 
-    const { data, error } = await query;
+    const { data, error } = await query.limit(100);
     if (error) throw error;
     return (data ?? []).map(rowToItinerary);
   }

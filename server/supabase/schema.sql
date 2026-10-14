@@ -201,6 +201,12 @@ begin
 end;
 $$;
 
+-- These take the user id as an argument, so they must only be callable by the
+-- API (service role) — never by anon/authenticated clients via RPC.
+revoke execute on function public.toggle_like(uuid, uuid) from public, anon, authenticated;
+revoke execute on function public.toggle_bookmark(uuid, uuid) from public, anon, authenticated;
+revoke execute on function public.handle_new_user() from public, anon, authenticated;
+
 -- ---------------------------------------------------------------------------
 -- Row Level Security. The Express backend talks to Supabase with the
 -- service-role key (which bypasses RLS entirely) and does its own
@@ -209,6 +215,10 @@ $$;
 -- in depth: it's what protects the data if anything (a future admin tool,
 -- a debugging session, a client-side query) ever connects with the anon key
 -- directly instead of going through the API.
+--
+-- Clients get read-only access. There are deliberately no insert/update/
+-- delete policies: all writes go through the API so its validation can't be
+-- bypassed (e.g. an owner setting likes_count or forging comments via REST).
 -- ---------------------------------------------------------------------------
 alter table public.profiles enable row level security;
 alter table public.destinations enable row level security;
@@ -218,30 +228,18 @@ alter table public.bookmarks enable row level security;
 
 create policy "Profiles are publicly readable" on public.profiles
   for select using (true);
-create policy "Users can update their own profile" on public.profiles
-  for update using (auth.uid() = id);
 
 create policy "Destinations are publicly readable" on public.destinations
   for select using (true);
 
 create policy "Published plans are publicly readable" on public.travel_plans
   for select using (is_published = true or creator_id = auth.uid());
-create policy "Users can create their own plans" on public.travel_plans
-  for insert with check (creator_id = auth.uid());
-create policy "Users can update their own plans" on public.travel_plans
-  for update using (creator_id = auth.uid());
-create policy "Users can delete their own plans" on public.travel_plans
-  for delete using (creator_id = auth.uid());
 
 create policy "Likes are publicly readable" on public.likes
   for select using (true);
-create policy "Users manage their own likes" on public.likes
-  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 create policy "Bookmarks are publicly readable" on public.bookmarks
   for select using (true);
-create policy "Users manage their own bookmarks" on public.bookmarks
-  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 -- ---------------------------------------------------------------------------
 -- analytics_events: raw event log for the future dashboard. event_type +

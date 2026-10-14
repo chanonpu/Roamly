@@ -32,6 +32,13 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
   const res = await fetch(`${API_URL}${path}`, { ...init, headers });
 
+  if (res.status === 429) {
+    // Rate limited by the API. Retry-After is in seconds when present.
+    const retryAfter = Number(res.headers.get('Retry-After'));
+    const wait = retryAfter > 0 ? ` in ${retryAfter} second${retryAfter === 1 ? '' : 's'}` : ' shortly';
+    throw new ApiError(429, `You're doing that too often — please try again${wait}.`);
+  }
+
   if (!res.ok) {
     let message = `Request failed: ${res.status}`;
     try {
