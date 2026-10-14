@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ArrowLeft, AlertTriangle, LogIn, Compass, Sparkles, Loader2 } from 'lucide-react';
 
 import { Navbar } from './components/Navbar';
@@ -34,7 +34,6 @@ export default function App() {
   const [activeTab, setActiveTabState] = useState<Tab>('discover');
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>(CURRENCIES[0]);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
 
   // ---- Server-backed public data. Seeded with mock data so the first paint
   // is instant; replaced in-place once the API responds. ----
@@ -134,10 +133,6 @@ export default function App() {
     setPackingModalItinerary(prev => (prev && prev.id === updated.id ? updated : prev));
   }, [currentUser]);
 
-  const destinationsList = useMemo(
-    () => destinations.map(d => ({ city: d.city, country: d.country })),
-    [destinations]
-  );
 
   const isDraftSelected = !!draftItinerary && selectedItinerary?.id === draftItinerary.id;
   // Drafts have no server row yet, so owner edits (which call the API by id) wait until saved.
@@ -164,12 +159,6 @@ export default function App() {
   const requireAuth = useCallback(() => setIsAuthModalOpen(true), []);
 
   // ---- Handlers ----
-  const handleSearchSelectDestination = useCallback((cityName: string) => {
-    const found = destinations.find(d => d.city.toLowerCase() === cityName.toLowerCase());
-    if (found) selectDestination(found);
-    setSearchQuery('');
-  }, [destinations, selectDestination]);
-
   const handleStartPlanning = useCallback((destination: Destination) => {
     if (destination.hasWarning && destination.warningKey && TRAVEL_WARNINGS[destination.warningKey]) {
       setPendingDestination(destination);
@@ -370,12 +359,8 @@ export default function App() {
         setSelectedCurrency={setSelectedCurrency}
         isDarkMode={isDarkMode}
         setIsDarkMode={setIsDarkMode}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
         onOpenAiChat={handleOpenAiChat}
         onOpenDocs={handleOpenDocs}
-        onSearchSelectDestination={handleSearchSelectDestination}
-        destinationsList={destinationsList}
         currencies={currencies}
         isSignedIn={auth.isSignedIn}
         userName={currentUser?.name ?? auth.user?.email ?? 'Traveler'}
@@ -437,7 +422,6 @@ export default function App() {
               <DiscoverView
                 destinations={destinations}
                 currency={selectedCurrency}
-                searchQuery={searchQuery}
                 onSelectDestination={selectDestination}
                 visitedCountries={auth.isSignedIn ? currentUser?.visitedCountries : undefined}
               />

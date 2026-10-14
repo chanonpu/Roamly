@@ -1,8 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Compass, MapPin, Sparkles, User, Sun, Moon, Search, BookOpen, Layers, DollarSign, Bot, LogOut } from 'lucide-react';
+import React from 'react';
+import { Compass, Sparkles, User, Sun, Moon, BookOpen, Layers, DollarSign, Bot, LogOut } from 'lucide-react';
 import { Currency } from '../types/travel';
-import { useDebouncedValue } from '../hooks/useDebouncedValue';
-import { track } from '../lib/analytics';
 import { avatarSrc } from '../lib/avatar';
 
 interface NavbarProps {
@@ -12,12 +10,8 @@ interface NavbarProps {
   setSelectedCurrency: (currency: Currency) => void;
   isDarkMode: boolean;
   setIsDarkMode: (val: boolean) => void;
-  searchQuery: string;
-  setSearchQuery: (q: string) => void;
   onOpenAiChat: () => void;
   onOpenDocs: () => void;
-  onSearchSelectDestination: (destinationName: string) => void;
-  destinationsList: { city: string; country: string }[];
   currencies: Currency[];
   isSignedIn: boolean;
   userName: string;
@@ -33,12 +27,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   setSelectedCurrency,
   isDarkMode,
   setIsDarkMode,
-  searchQuery,
-  setSearchQuery,
   onOpenAiChat,
   onOpenDocs,
-  onSearchSelectDestination,
-  destinationsList,
   currencies,
   isSignedIn,
   userName,
@@ -46,29 +36,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAuth,
   onSignOut
 }) => {
-  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
-
-  // The input stays instantly responsive (searchQuery updates every
-  // keystroke, so typing never feels laggy); only the *filtering* work is
-  // debounced, since that's the part that would otherwise re-run and
-  // re-render the dropdown on every single keypress.
-  const debouncedQuery = useDebouncedValue(searchQuery, 150);
-
-  const filteredSearchList = useMemo(() => {
-    const q = debouncedQuery.trim().toLowerCase();
-    if (!q) return [];
-    return destinationsList.filter(d =>
-      d.city.toLowerCase().includes(q) || d.country.toLowerCase().includes(q)
-    );
-  }, [destinationsList, debouncedQuery]);
-
-  // Log the search once it's settled (debounced value), not on every
-  // keystroke — this is what feeds the future dashboard's search-terms view.
-  useEffect(() => {
-    const q = debouncedQuery.trim();
-    if (q) track('search', { query: q, context: 'navbar', resultsCount: filteredSearchList.length });
-  }, [debouncedQuery, filteredSearchList.length]);
-
   return (
     <header id="main-header" className="sticky top-0 z-40 w-full glass-panel border-b border-stone-200/80 dark:border-stone-800/80 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
@@ -90,48 +57,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               Editorial Planner
             </span>
           </div>
-        </div>
-
-        <div className="relative flex-1 max-w-md hidden md:block lg:hidden xl:block" id="nav-search-container">
-          <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
-            <input
-              type="text"
-              id="global-search-input"
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setShowSearchDropdown(true);
-              }}
-              onFocus={() => setShowSearchDropdown(true)}
-              onBlur={() => setTimeout(() => setShowSearchDropdown(false), 200)}
-              placeholder="Search Tokyo, Paris, Iceland, Sydney..."
-              className="w-full pl-9 pr-4 py-1.5 text-sm rounded-full bg-white/80 dark:bg-stone-900/90 border border-stone-300/80 dark:border-stone-700 text-stone-800 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-sky-600/40 transition-all shadow-xs"
-            />
-          </div>
-
-          {showSearchDropdown && filteredSearchList.length > 0 && (
-            <div id="search-autocomplete-dropdown" className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl shadow-xl z-50 overflow-hidden py-1">
-              <div className="px-3 py-1.5 text-xs font-semibold text-stone-400 uppercase tracking-wider">Destinations</div>
-              {filteredSearchList.map((d, i) => (
-                <button
-                  key={i}
-                  id={`search-item-${i}`}
-                  className="w-full px-3 py-2 text-left text-sm hover:bg-sky-50 dark:hover:bg-stone-800 flex items-center justify-between transition-colors"
-                  onClick={() => {
-                    onSearchSelectDestination(d.city);
-                    setSearchQuery('');
-                    setShowSearchDropdown(false);
-                  }}
-                >
-                  <span className="flex items-center gap-2 text-stone-700 dark:text-stone-200 font-medium">
-                    <MapPin className="w-3.5 h-3.5 text-sky-600" /> {d.city}
-                  </span>
-                  <span className="text-xs text-stone-400">{d.country}</span>
-                </button>
-              ))}
-            </div>
-          )}
         </div>
 
         <nav className="hidden lg:flex items-center gap-1 bg-stone-200/50 dark:bg-stone-900/80 p-1 rounded-full border border-stone-300/60 dark:border-stone-800" id="desktop-nav">

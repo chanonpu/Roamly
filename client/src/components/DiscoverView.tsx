@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo } from 'react';
-import { MapPin, DollarSign, Compass } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { MapPin, DollarSign, Compass, Search } from 'lucide-react';
 import { Destination, Currency } from '../types/travel';
 import { LazyInteractiveMap as InteractiveMap } from './LazyInteractiveMap';
 import { formatCurrency } from '../lib/format';
@@ -10,7 +10,6 @@ import { WILD_CARD_KEYS } from '../data/mockData';
 interface DiscoverViewProps {
   destinations: Destination[];
   currency: Currency;
-  searchQuery: string;
   onSelectDestination: (destination: Destination) => void;
   visitedCountries?: string[];
 }
@@ -68,8 +67,10 @@ const DestinationCard = React.memo(function DestinationCard({
 });
 
 export const DiscoverView: React.FC<DiscoverViewProps> = ({
-  destinations, currency, searchQuery, onSelectDestination, visitedCountries,
+  destinations, currency, onSelectDestination, visitedCountries,
 }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
   const debouncedQuery = useDebouncedValue(searchQuery, 200);
 
   const filtered = useMemo(() => {
@@ -105,6 +106,48 @@ export const DiscoverView: React.FC<DiscoverViewProps> = ({
       </div>
 
       <div className="space-y-2">
+        <div className="relative max-w-xl mx-auto mb-4" id="discover-search-container">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+            <input
+              type="text"
+              id="discover-search-input"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setShowSearchDropdown(true);
+              }}
+              onFocus={() => setShowSearchDropdown(true)}
+              onBlur={() => setTimeout(() => setShowSearchDropdown(false), 200)}
+              placeholder="Search Tokyo, Paris, Iceland, Sydney..."
+              className="w-full pl-10 pr-4 py-2.5 text-sm rounded-full bg-white dark:bg-stone-900 border border-stone-300/80 dark:border-stone-700 text-stone-800 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-sky-600/40 transition-all shadow-sm"
+            />
+          </div>
+
+          {showSearchDropdown && debouncedQuery.trim() && filtered.length > 0 && (
+            <div id="search-autocomplete-dropdown" className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl shadow-xl z-[1100] overflow-hidden py-1">
+              <div className="px-3 py-1.5 text-xs font-semibold text-stone-400 uppercase tracking-wider">Destinations</div>
+              {filtered.map((d, i) => (
+                <button
+                  key={d.id}
+                  id={`search-item-${i}`}
+                  className="w-full px-3 py-2 text-left text-sm hover:bg-sky-50 dark:hover:bg-stone-800 flex items-center justify-between transition-colors"
+                  onClick={() => {
+                    onSelectDestination(d);
+                    setSearchQuery('');
+                    setShowSearchDropdown(false);
+                  }}
+                >
+                  <span className="flex items-center gap-2 text-stone-700 dark:text-stone-200 font-medium">
+                    <MapPin className="w-3.5 h-3.5 text-sky-600" /> {d.city}
+                  </span>
+                  <span className="text-xs text-stone-400">{d.country}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
         <InteractiveMap destinations={filtered} onSelectDestination={onSelectDestination} visitedCountries={visitedCountries} height="420px" />
         {visitedCountries && visitedCountries.length > 0 && (
           <p className="flex items-center gap-1.5 text-xs font-semibold text-stone-500 dark:text-stone-400">
