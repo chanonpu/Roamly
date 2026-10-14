@@ -15,7 +15,7 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div id="docs-modal" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/70 backdrop-blur-md animate-fade-in">
+    <div onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }} id="docs-modal" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/70 backdrop-blur-md animate-fade-in">
       <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl max-w-4xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
         
         {/* Header */}

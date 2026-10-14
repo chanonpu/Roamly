@@ -18,7 +18,7 @@ export const DestinationModal: React.FC<DestinationModalProps> = ({
   if (!destination) return null;
 
   return (
-    <div id="destination-detail-modal" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm animate-fade-in">
+    <div onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }} id="destination-detail-modal" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm animate-fade-in">
       <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl max-w-xl w-full shadow-2xl overflow-hidden relative">
         
         {/* Cover Image & Close Button */}

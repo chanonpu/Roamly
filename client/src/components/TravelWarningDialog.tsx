@@ -16,7 +16,7 @@ export const TravelWarningDialog: React.FC<TravelWarningDialogProps> = ({
   if (!warning) return null;
 
   return (
-    <div id="travel-warning-modal" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/40 dark:bg-stone-950/70 backdrop-blur-sm animate-fade-in">
+    <div onMouseDown={e => { if (e.target === e.currentTarget) onCancel(); }} id="travel-warning-modal" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/40 dark:bg-stone-950/70 backdrop-blur-sm animate-fade-in">
       <div className="bg-white dark:bg-stone-900 border-2 border-amber-500/80 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-5 text-center relative overflow-hidden">
         
         {/* Animated Warning Icon Header */}

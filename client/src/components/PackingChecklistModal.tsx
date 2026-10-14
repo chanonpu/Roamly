@@ -45,7 +45,7 @@ export const PackingChecklistModal: React.FC<PackingChecklistModalProps> = ({
   const progressPercent = packingList.length ? Math.round((packedCount / packingList.length) * 100) : 0;
 
   return (
-    <div id="packing-modal" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm animate-fade-in">
+    <div onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }} id="packing-modal" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm animate-fade-in">
       <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5">
         
         <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800 pb-3">

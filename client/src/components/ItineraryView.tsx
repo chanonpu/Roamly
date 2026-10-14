@@ -582,7 +582,7 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({
 
       {/* Add Custom Activity Modal */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm animate-fade-in">
+        <div onMouseDown={e => { if (e.target === e.currentTarget) setIsAddModalOpen(false); }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
             <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100 font-serif-heading">
               Add Activity to Day {addDayIndex + 1}
