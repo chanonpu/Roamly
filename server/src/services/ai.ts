@@ -1,4 +1,4 @@
-import { Activity, GenerateTripRequest, TimeOfDay, TravelItinerary } from '../types/travel.js';
+import { Activity, GenerateTripRequest, TimeOfDay, TravelItinerary, WarningKey } from '../types/travel.js';
 import { generateHeuristicItinerary } from './itineraryGenerator.js';
 import { makeId } from '../utils/id.js';
 
@@ -78,11 +78,19 @@ export const isGeminiConfigured = () => Boolean(GEMINI_API_KEY);
 // ---------------------------------------------------------------------------
 // Itinerary generation
 // ---------------------------------------------------------------------------
+/** Wild Card destinations nobody can actually visit; Pyongyang and Antarctica
+ *  are real trips, so they're deliberately left out. */
+export const IMPOSSIBLE_KEYS = new Set<WarningKey>([
+  'moon', 'iss', 'mars', 'bermuda', 'area51', 'atlantis', 'point_nemo', 'everest', 'mariana',
+]);
+
 export async function generateItinerary(
   req: GenerateTripRequest,
   userId: string,
   userName: string,
-  userAvatar: string
+  userAvatar: string,
+  /** Impossible destinations (the Moon, Atlantis…) get a tongue-in-cheek itinerary. */
+  whimsical = false
 ): Promise<TravelItinerary> {
   const fallback = () => generateHeuristicItinerary(req, userId, userName, userAvatar);
   if (!isGeminiConfigured()) return fallback();
@@ -96,7 +104,8 @@ export async function generateItinerary(
   "days": [{ "title": string, "activities": [{ "title": string, "category": string, "location": string, "description": string, "estimatedDuration": string, "estimatedCost": number, "timeOfDay": "Morning"|"Afternoon"|"Evening" }] }]
 }
 Trip request: destination="${req.destination}", durationDays=${req.durationDays}, season="${req.season}", preferences=${JSON.stringify(req.preferences)}, companionStyle="${req.companionStyle ?? 'Solo'}", budgetStyle="${req.budgetStyle ?? 'Moderate'}".
-Produce exactly ${req.durationDays} days, each with exactly 3 activities (one per time of day). Keep descriptions to one sentence.`;
+Produce exactly ${req.durationDays} days, each with exactly 3 activities (one per time of day). Keep descriptions to one sentence.${whimsical ? `
+This is a fictional or practically impossible destination. Write a playful, tongue-in-cheek itinerary with inventive activities and witty one-sentence descriptions, while keeping the exact JSON shape, realistic-sounding durations, and non-negative costs.` : ''}`;
 
   type GeminiItineraryShape = {
     summary: string;

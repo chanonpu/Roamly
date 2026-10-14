@@ -5,6 +5,7 @@ import { LazyInteractiveMap as InteractiveMap } from './LazyInteractiveMap';
 import { formatCurrency } from '../lib/format';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { track } from '../lib/analytics';
+import { WILD_CARD_KEYS } from '../data/mockData';
 
 interface DiscoverViewProps {
   destinations: Destination[];
@@ -84,6 +85,11 @@ export const DiscoverView: React.FC<DiscoverViewProps> = ({
     if (q) track('search', { query: q, context: 'discover', resultsCount: filtered.length });
   }, [debouncedQuery, filtered.length]);
 
+  const [regular, wildCards] = useMemo(() => {
+    const isWild = (d: Destination) => !!d.warningKey && WILD_CARD_KEYS.has(d.warningKey);
+    return [filtered.filter(d => !isWild(d)), filtered.filter(isWild)];
+  }, [filtered]);
+
   return (
     <div id="discover-view-container" className="max-w-7xl mx-auto py-6 px-4 sm:px-6 space-y-8">
       <div className="text-center space-y-2">
@@ -114,11 +120,33 @@ export const DiscoverView: React.FC<DiscoverViewProps> = ({
           No destinations match "{debouncedQuery}". Try a different search.
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {filtered.map(dest => (
-            <DestinationCard key={dest.id} destination={dest} currency={currency} onSelect={onSelectDestination} />
-          ))}
-        </div>
+        <>
+          {regular.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {regular.map(dest => (
+                <DestinationCard key={dest.id} destination={dest} currency={currency} onSelect={onSelectDestination} />
+              ))}
+            </div>
+          )}
+
+          {wildCards.length > 0 && (
+            <section id="wild-card-destinations" className="space-y-4 pt-4">
+              <div className="text-center space-y-1.5">
+                <h2 className="text-2xl sm:text-3xl font-black text-stone-900 dark:text-stone-100 font-serif-heading">
+                  🃏 Wild Card Destinations
+                </h2>
+                <p className="text-sm text-stone-600 dark:text-stone-400 max-w-xl mx-auto">
+                  For travelers who find "off the beaten path" a little too beaten.
+                </p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                {wildCards.map(dest => (
+                  <DestinationCard key={dest.id} destination={dest} currency={currency} onSelect={onSelectDestination} />
+                ))}
+              </div>
+            </section>
+          )}
+        </>
       )}
     </div>
   );

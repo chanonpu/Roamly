@@ -5,7 +5,7 @@ import { store } from '../db/store.js';
 import { requireAuth, optionalAuth, AuthedRequest } from '../middleware/auth.js';
 import { aiLimiter, generateLimiter } from '../middleware/rateLimit.js';
 import { optimizeActivityRoute } from '../utils/geo.js';
-import { chatReply, generateItinerary, isGeminiConfigured, suggestHiddenGem } from '../services/ai.js';
+import { chatReply, generateItinerary, IMPOSSIBLE_KEYS, isGeminiConfigured, suggestHiddenGem } from '../services/ai.js';
 import { logEvent } from '../services/analytics.js';
 import { Activity } from '../types/travel.js';
 
@@ -24,14 +24,23 @@ const generateSchema = z.object({
 
 aiRouter.post('/generate-itinerary', requireAuth, generateLimiter, asyncHandler(async (req: AuthedRequest, res) => {
   const body = generateSchema.parse(req.body);
-  const profile = await store.getUser(req.user!.id);
+  const [profile, destinations] = await Promise.all([store.getUser(req.user!.id), store.listDestinations()]);
+  const wanted = body.destination.toLowerCase();
+  // City first ("Atlantis" alone also finds "Lost City of Atlantis"); country is the fallback.
+  // Impossible destinations use made-up "countries" (The Moon, Himalayas…), so a country match
+  // never turns a real trip into a joke one.
+  const match = destinations.find(d => {
+    const city = d.city.toLowerCase();
+    return wanted.includes(city) || (wanted.length >= 4 && city.includes(wanted));
+  }) ?? destinations.find(d => wanted.includes(d.country.toLowerCase()));
   // Returned as an unsaved draft; the client saves it via POST /api/itineraries
   // once the user approves it.
   const itinerary = await generateItinerary(
     body as any,
     req.user!.id,
     profile?.name ?? 'Traveler',
-    profile?.avatar ?? ''
+    profile?.avatar ?? '',
+    !!match?.warningKey && IMPOSSIBLE_KEYS.has(match.warningKey)
   );
   await logEvent('generate_itinerary', {
     destination: body.destination, durationDays: body.durationDays, season: body.season,

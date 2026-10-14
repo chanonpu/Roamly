@@ -35,6 +35,11 @@ async function requireVisibleItinerary(id: string, userId?: string): Promise<Tra
 const httpUrl = z.string().max(1000).refine(u => u === '' || /^https?:\/\//i.test(u), {
   message: 'must be an http(s) URL',
 });
+// Images may also be root-relative (self-hosted under client/public, e.g. /destinations/moon.jpg),
+// but not protocol-relative (//host), which would load from another site.
+const imageUrl = z.string().max(1000).refine(u => u === '' || /^https?:\/\//i.test(u) || /^\/(?!\/)/.test(u), {
+  message: 'must be an http(s) URL or a /path',
+});
 
 const activitySchema = z.object({
   id: z.string().max(100).optional(),
@@ -70,7 +75,7 @@ const packingListSchema = z.array(z.object({
 const editableFields = {
   title: z.string().min(1).max(200),
   summary: z.string().max(2000),
-  coverImage: httpUrl,
+  coverImage: imageUrl,
   season: z.enum(['Spring', 'Summer', 'Autumn', 'Winter']),
   preferences: z.array(z.string().max(50)).max(20),
   companionStyle: z.enum(['Solo', 'Couple', 'Family', 'Friends', 'Pet Friendly']),

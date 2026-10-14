@@ -81,6 +81,10 @@ export interface TravelItinerary {
   updatedAt: string;
 }
 
+export type WarningKey =
+  | 'north_korea' | 'australia' | 'switzerland' | 'antarctica' | 'mars'
+  | 'moon' | 'iss' | 'bermuda' | 'area51' | 'everest' | 'mariana' | 'atlantis' | 'point_nemo';
+
 export interface Destination {
   id: string;
   city: string;
@@ -94,7 +98,7 @@ export interface Destination {
   lng: number;
   description: string;
   hasWarning?: boolean;
-  warningKey?: 'north_korea' | 'australia' | 'switzerland' | 'antarctica' | 'mars';
+  warningKey?: WarningKey;
   popularTags: TravelCategory[];
 }
 

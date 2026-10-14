@@ -1,4 +1,4 @@
-import { Destination, TravelWarning, TravelItinerary, UserProfile, Currency } from '../types/travel';
+import { Destination, TravelWarning, TravelItinerary, UserProfile, Currency, WarningKey } from '../types/travel';
 
 export const CURRENCIES: Currency[] = [
   { code: 'USD', symbol: '$', name: 'US Dollar', rateToUSD: 1.0 },
@@ -12,52 +12,178 @@ export const CURRENCIES: Currency[] = [
   { code: 'INR', symbol: '₹', name: 'Indian Rupee', rateToUSD: 83.5 },
 ];
 
-export const TRAVEL_WARNINGS: Record<string, TravelWarning> = {
+/** Destinations shown in Discover's "Wild Card" section instead of the main grid. */
+export const WILD_CARD_KEYS = new Set<WarningKey>([
+  'moon', 'iss', 'mars', 'bermuda', 'area51', 'atlantis', 'point_nemo', 'everest', 'mariana', 'north_korea', 'antarctica',
+]);
+
+export const TRAVEL_WARNINGS: Record<WarningKey, TravelWarning> = {
   north_korea: {
     key: 'north_korea',
     destinationName: 'North Korea',
-    title: '⚠️ Are you absolutely sure?',
-    message: 'Your vacation may become an award-winning documentary. Please keep all official posters on the walls.',
+    variants: [
+      { title: '⚠️ Are you absolutely sure?', message: 'Your vacation may become an award-winning documentary. Please keep all official posters on the walls.' },
+      { title: '🎬 Itinerary Pre-Approved', message: 'Good news: your guide has already planned every minute of your trip. Bad news: that includes the minutes you wanted to yourself.' },
+      { title: '📵 Digital Detox Included', message: 'Unlimited free Wi-Fi! (Wi-Fi not included.) Bring a paperback, a good attitude, and absolutely no opinions.' },
+    ],
     confirmButtonText: "I'm brave. Let's inspect badges.",
     cancelButtonText: 'Take me somewhere safer.',
-    icon: '🎬'
+    icon: '🎬',
+    doubleCheck: { title: 'One more thing…', message: 'Do you promise not to take a single unapproved photo of a statue, a building, or a particularly patriotic pigeon?', confirmButtonText: 'Pinky promise.' },
   },
   australia: {
     key: 'australia',
     destinationName: 'Australia',
-    title: '🐍 Extreme Wildlife Advisory',
-    message: 'Everything there is either adorable (quokkas) or actively planning your downfall (drop bears, gympie-gympie plants, blue-ringed octopuses).',
+    variants: [
+      { title: '🐍 Extreme Wildlife Advisory', message: 'Everything there is either adorable (quokkas) or actively planning your downfall (drop bears, gympie-gympie plants, blue-ringed octopuses).' },
+      { title: '🕷️ Spider Census Update', message: 'Local spiders outnumber you roughly 10 million to one. They have been informed of your arrival and are very excited.' },
+      { title: '🦘 Boxing Kangaroo Notice', message: 'If a kangaroo invites you to a friendly sparring match, it is not friendly. Decline politely and back away slowly.' },
+    ],
     confirmButtonText: 'I brought anti-venom.',
     cancelButtonText: 'Find me fewer spiders.',
-    icon: '🦘'
+    icon: '🦘',
   },
   switzerland: {
     key: 'switzerland',
     destinationName: 'Switzerland',
-    title: '💸 Financial High Altitude Warning',
-    message: 'Reminder: Your wallet is about to experience severe altitude sickness. A cup of coffee costs 9 CHF and your kidney.',
+    variants: [
+      { title: '💸 Financial High Altitude Warning', message: 'Reminder: Your wallet is about to experience severe altitude sickness. A cup of coffee costs 9 CHF and your kidney.' },
+      { title: '⌚ Punctuality Enforcement Zone', message: 'Trains leave at exactly 10:02:00. Not 10:02:01. The conductor has never once waited for anyone and will not start with you.' },
+      { title: '🧀 Fondue Commitment Required', message: 'Dropping your bread into the fondue pot is traditionally punished by buying the next round. At Swiss prices, this is a mortgage.' },
+    ],
     confirmButtonText: 'My credit card is ready.',
     cancelButtonText: 'Show budget destinations.',
-    icon: '🧀'
+    icon: '🧀',
   },
   antarctica: {
     key: 'antarctica',
     destinationName: 'Antarctica',
-    title: '🐧 Sub-Zero Isolation Alert',
-    message: 'No traffic jams. No mosquitoes. Zero cell service. Just 5 million penguins judging your winter jacket choices.',
+    variants: [
+      { title: '🐧 Sub-Zero Isolation Alert', message: 'No traffic jams. No mosquitoes. Zero cell service. Just 5 million penguins judging your winter jacket choices.' },
+      { title: '🧊 Tan Lines Not Guaranteed', message: 'The sun shines 24 hours a day in summer, yet you will somehow be colder than you have ever been. Pack sunscreen and existential dread.' },
+      { title: '🌊 The Drake Passage Says Hi', message: 'The two-day boat ride here features waves the size of apartment buildings. Your breakfast may visit Antarctica before you do.' },
+    ],
     confirmButtonText: 'Pack the parka!',
     cancelButtonText: 'Too cold for me.',
-    icon: '❄️'
+    icon: '❄️',
   },
   mars: {
     key: 'mars',
     destinationName: 'Mars (Olympus Mons)',
-    title: '🚀 Interplanetary Commute Required',
-    message: 'Feature coming in Version 2050! Please ensure your suit seals properly and pack extra freeze-dried ice cream.',
+    variants: [
+      { title: '🚀 Interplanetary Commute Required', message: 'Feature coming in Version 2050! Please ensure your suit seals properly and pack extra freeze-dried ice cream.' },
+      { title: '🔴 Flight Time: 7 Months', message: 'In-flight entertainment consists of one movie, which is about astronauts stranded on Mars. We thought it was funny. Nobody else did.' },
+      { title: '🌪️ Weather Advisory', message: "Today's forecast: −63°C with a 100% chance of planet-wide dust storm lasting until roughly next season. Don't forget a hat." },
+    ],
     confirmButtonText: 'Notify me in 2050',
     cancelButtonText: 'Earth is nice too.',
-    icon: '👽'
-  }
+    icon: '👽',
+    doubleCheck: { title: 'Return trip not yet scheduled', message: 'Our return flights are currently "under review". Are you okay with a one-way ticket and a very long vacation?', confirmButtonText: "I'll grow potatoes." },
+  },
+  moon: {
+    key: 'moon',
+    destinationName: 'The Moon',
+    variants: [
+      { title: '🌕 Low Gravity Advisory', message: 'You will weigh one-sixth of your normal weight. Your luggage allowance, sadly, remains exactly the same.' },
+      { title: '🍽️ Dining Notice', message: "Lunar restaurants have excellent food but absolutely no atmosphere. We've heard every version of this joke. So has the chef." },
+      { title: '👣 Leave No Trace (Seriously)', message: 'Footprints on the Moon last for millions of years. Please walk in a way you would be proud of in 2 million AD.' },
+    ],
+    confirmButtonText: 'One small step…',
+    cancelButtonText: 'I get space-sick.',
+    icon: '🌙',
+    doubleCheck: { title: 'Final check: astronaut experience', message: 'Have you ever actually been to space? Watching every Apollo documentary twice does count, apparently.', confirmButtonText: 'I watched a documentary once.' },
+  },
+  iss: {
+    key: 'iss',
+    destinationName: 'International Space Station',
+    variants: [
+      { title: '🛰️ 16 Sunrises a Day', message: 'You will orbit Earth every 90 minutes. Your jet lag will develop jet lag. Bring an eye mask and low expectations about sleep.' },
+      { title: '🚽 Bathroom Orientation Required', message: 'Before departure, all guests must complete a mandatory two-hour course on the space toilet. There will be a test. It is practical.' },
+      { title: '🥤 Hydration Notice', message: "Today's drinking water is yesterday's coffee, recycled. It's perfectly clean. Please do not think about it too hard." },
+    ],
+    confirmButtonText: 'Float me up!',
+    cancelButtonText: 'I prefer gravity.',
+    icon: '🛰️',
+    doubleCheck: { title: 'Room service check', message: 'Every meal comes in a pouch, and crumbs float into the air vents forever. Still want the window seat?', confirmButtonText: 'Pouch me.' },
+  },
+  bermuda: {
+    key: 'bermuda',
+    destinationName: 'Bermuda Triangle',
+    variants: [
+      { title: '🔺 Lost Luggage Advisory', message: 'Your luggage may vanish without a trace. To be fair, this also happens at most major airports.' },
+      { title: '🧭 Navigation Notice', message: 'Compasses, GPS, and your sense of direction may all briefly disagree. The ocean will not take sides.' },
+      { title: '🛥️ Cruise Disclaimer', message: 'The beaches are gorgeous, the water is turquoise, and your return date is "to be determined". Do bring sunscreen.' },
+    ],
+    confirmButtonText: 'Vanish me.',
+    cancelButtonText: 'I like being found.',
+    icon: '🔺',
+    doubleCheck: { title: 'Emergency contact form', message: 'Please list someone who will notice if you are gone for, say, 40 years and return looking exactly the same.', confirmButtonText: 'My mom. Sign me up.' },
+  },
+  area51: {
+    key: 'area51',
+    destinationName: 'Area 51',
+    variants: [
+      { title: '👽 Photography Strictly Prohibited', message: 'There is nothing to see here. Please do not look at the nothing. The nothing has requested its privacy.' },
+      { title: '🚫 Restricted Airspace', message: "Visitors who get too close to the fence may be greeted by a friendly white truck. It is not here to give you directions." },
+      { title: '🛸 Visitor Center Hours', message: 'The visitor center does not exist, is closed on weekends, and the gift shop is out of the souvenir you are definitely not buying.' },
+    ],
+    confirmButtonText: 'I want to believe.',
+    cancelButtonText: 'I saw nothing.',
+    icon: '🛸',
+    doubleCheck: { title: 'Non-disclosure agreement', message: 'By continuing, you agree that this trip never happened and that you have never heard of us. Please sign in invisible ink.', confirmButtonText: 'What trip?' },
+  },
+  everest: {
+    key: 'everest',
+    destinationName: 'Mount Everest Summit',
+    variants: [
+      { title: '🏔️ Altitude Advisory', message: 'At 8,849 m the air has a third of the oxygen. Every step feels like climbing a flight of stairs while breathing through a coffee straw.' },
+      { title: '🧍 Queue Notice', message: 'Summit day features a two-hour queue at 8,700 m. Think of it like a theme park line, except the ride is not breathing.' },
+      { title: '📸 Selfie Spot Warning', message: 'The summit is the size of a dining table and you have roughly 15 minutes. Please pre-plan your pose.' },
+    ],
+    confirmButtonText: 'Summit or bust!',
+    cancelButtonText: 'Base camp is fine.',
+    icon: '🏔️',
+    doubleCheck: { title: 'Fitness check', message: 'Can you currently walk up two flights of stairs without needing a nap and a snack? This trip is about 6,000 of those.', confirmButtonText: 'I own hiking boots.' },
+  },
+  mariana: {
+    key: 'mariana',
+    destinationName: 'Mariana Trench',
+    variants: [
+      { title: '🌊 Pressure Advisory', message: 'At 10,935 m deep, the water pressure equals an elephant standing on your thumbnail. Please keep your thumbs inside the submarine.' },
+      { title: '🔦 Lighting Notice', message: 'No sunlight has reached this place in all of history. The locals glow in the dark and have far too many teeth.' },
+      { title: '📶 Signal Strength: None', message: 'More people have walked on the Moon than visited the bottom of the trench. Your "out of office" message will be very accurate.' },
+    ],
+    confirmButtonText: 'Dive, dive, dive!',
+    cancelButtonText: 'Shallow end please.',
+    icon: '🐙',
+    doubleCheck: { title: 'Claustrophobia check', message: 'Your sub is the size of a fridge and the trip down takes 4 hours. Do you, generally speaking, enjoy fridges?', confirmButtonText: 'I love fridges.' },
+  },
+  atlantis: {
+    key: 'atlantis',
+    destinationName: 'Lost City of Atlantis',
+    variants: [
+      { title: '🔱 Location Unconfirmed', message: 'Atlantis is lost. That is sort of the whole point. Our tour guides have been searching since roughly 360 BC.' },
+      { title: '🧜 Dress Code', message: 'Formal attire is required at the Royal Palace. Gills are strongly encouraged. Snorkels are considered a bit tacky.' },
+      { title: '📜 Historical Accuracy Notice', message: 'Our only source is a story Plato told 2,400 years ago. Please manage your expectations about the gift shop.' },
+    ],
+    confirmButtonText: 'Find it with me!',
+    cancelButtonText: 'Dry land, thanks.',
+    icon: '🔱',
+    doubleCheck: { title: 'Swimming test', message: 'This destination is entirely underwater. Can you hold your breath for, ideally, the whole holiday?', confirmButtonText: 'I took lessons.' },
+  },
+  point_nemo: {
+    key: 'point_nemo',
+    destinationName: 'Point Nemo',
+    variants: [
+      { title: '🌊 Most Remote Place on Earth', message: 'The nearest humans are usually astronauts on the ISS, about 400 km above you. They will not be popping by.' },
+      { title: '🛰️ Spacecraft Graveyard Advisory', message: 'Old satellites are deliberately crashed here. Please wear a hat. A strong hat.' },
+      { title: '🏝️ Beach Status', message: 'There is no beach. There is no island. There is ocean, more ocean, and a deep sense of personal reflection.' },
+    ],
+    confirmButtonText: 'Get me away from it all.',
+    cancelButtonText: 'I like neighbours.',
+    icon: '🧭',
+    doubleCheck: { title: 'Loneliness check', message: 'The closest land is 2,688 km away. Do you have at least one good podcast downloaded?', confirmButtonText: 'Downloaded 400.' },
+  },
 };
 
 export const DESTINATIONS: Destination[] = [
@@ -121,7 +247,7 @@ export const DESTINATIONS: Destination[] = [
   },
   {
     id: 'pyongyang-nk', city: 'Pyongyang', country: 'North Korea', flag: '🇰🇵',
-    image: 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80',
+    image: '/destinations/pyongyang.jpg',
     timezone: 'Asia/Pyongyang (GMT+9)', bestSeason: 'Autumn', avgDailyCostUSD: 250,
     lat: 39.0392, lng: 125.7625,
     description: 'A tightly controlled capital city featuring monumental socialist classicism architecture and guided state tours.',
@@ -201,6 +327,79 @@ export const DESTINATIONS: Destination[] = [
     lat: 37.5665, lng: 126.978,
     description: 'Joseon-era palaces beside neon shopping districts, sizzling Korean BBQ, K-pop culture, and bustling night markets.',
     popularTags: ['City', 'Food', 'History', 'Shopping', 'Nightlife', 'Cafe'],
+  },
+  // ---- Wild Card destinations (impossible trips; shown in their own Discover section) ----
+  {
+    id: 'moon-tranquility', city: 'Tranquility Base', country: 'The Moon', flag: '🌙',
+    image: '/destinations/moon.jpg',
+    timezone: 'Lunar Standard Time (give or take a day)', bestSeason: 'Lunar Day (14 Earth days of sunshine)', avgDailyCostUSD: 125000,
+    lat: -25, lng: -150,
+    description: 'The original giant leap. Grey dunes, perfect boot prints, zero crowds, and the best view of Earth money can buy.',
+    hasWarning: true, warningKey: 'moon',
+    popularTags: ['Adventure', 'Photography', 'Hidden Gems', 'Luxury'],
+  },
+  {
+    id: 'iss-orbit', city: 'ISS Cupola Suites', country: 'Low Earth Orbit', flag: '🛰️',
+    image: '/destinations/iss.jpg',
+    timezone: 'UTC (yes, really — the station runs on GMT)', bestSeason: 'Any of the 16 daily sunrises', avgDailyCostUSD: 4500000,
+    lat: 35, lng: -160,
+    description: 'A floating apartment circling Earth every 90 minutes. Panoramic windows, recycled water, and absolutely no gravity.',
+    hasWarning: true, warningKey: 'iss',
+    popularTags: ['Adventure', 'Photography', 'Luxury'],
+  },
+  {
+    id: 'bermuda-triangle', city: 'Bermuda Triangle', country: 'Atlantic Ocean', flag: '🔺',
+    image: '/destinations/bermuda.jpg',
+    timezone: 'Atlantic/Bermuda (GMT-3, allegedly)', bestSeason: 'Whenever your compass agrees', avgDailyCostUSD: 320,
+    lat: 25, lng: -71,
+    description: 'Turquoise water, pink-sand beaches, and a long tradition of things quietly disappearing. Pack a spare everything.',
+    hasWarning: true, warningKey: 'bermuda',
+    popularTags: ['Beach', 'Adventure', 'Hidden Gems', 'Photography'],
+  },
+  {
+    id: 'area-51', city: 'Area 51', country: 'Nevada Desert', flag: '🛸',
+    image: '/destinations/area51.jpg',
+    timezone: 'America/Los_Angeles (officially)', bestSeason: 'Classified', avgDailyCostUSD: 51,
+    lat: 37.235, lng: -115.811,
+    description: 'A famously empty patch of Nevada desert with a lot of fences, a lot of cameras, and absolutely nothing to see. Probably.',
+    hasWarning: true, warningKey: 'area51',
+    popularTags: ['Road Trip', 'Hidden Gems', 'Adventure', 'Photography'],
+  },
+  {
+    id: 'everest-summit', city: 'Everest Summit', country: 'Himalayas', flag: '🏔️',
+    image: '/destinations/everest.jpg',
+    timezone: 'Asia/Kathmandu (GMT+5:45)', bestSeason: 'Mid-May summit window', avgDailyCostUSD: 1200,
+    lat: 27.9881, lng: 86.925,
+    description: 'The roof of the world at 8,849 m. Two months of climbing for fifteen minutes of the best selfie on the planet.',
+    hasWarning: true, warningKey: 'everest',
+    popularTags: ['Mountain', 'Hiking', 'Adventure', 'Camping'],
+  },
+  {
+    id: 'mariana-trench', city: 'Challenger Deep', country: 'Pacific Ocean', flag: '🐙',
+    image: '/destinations/mariana.jpg',
+    timezone: 'Pacific/Guam (GMT+10)', bestSeason: 'Always dark, always 2°C', avgDailyCostUSD: 750000,
+    lat: 11.3493, lng: 142.1996,
+    description: 'The deepest point in any ocean, nearly 11 km down. Dumbo octopuses, glowing locals, and very firm water pressure.',
+    hasWarning: true, warningKey: 'mariana',
+    popularTags: ['Adventure', 'Nature', 'Hidden Gems', 'Photography'],
+  },
+  {
+    id: 'atlantis-lost-city', city: 'Lost City of Atlantis', country: 'Atlantic Ocean', flag: '🔱',
+    image: '/destinations/atlantis.jpg',
+    timezone: 'Atlantean Mean Time (lost)', bestSeason: 'Low tide (circa 9600 BC)', avgDailyCostUSD: 9600,
+    lat: 31, lng: -28,
+    description: 'Plato’s legendary island kingdom, sunk beneath the waves. Marble palaces, coral boulevards, and a very relaxed dress code.',
+    hasWarning: true, warningKey: 'atlantis',
+    popularTags: ['History', 'Architecture', 'Hidden Gems', 'Adventure'],
+  },
+  {
+    id: 'point-nemo', city: 'Point Nemo', country: 'South Pacific Ocean', flag: '🧭',
+    image: '/destinations/point-nemo.jpg',
+    timezone: 'Etc/GMT+8 (nobody checks)', bestSeason: 'Any — it all looks like ocean', avgDailyCostUSD: 900,
+    lat: -48.8767, lng: -123.3933,
+    description: 'The point on Earth farthest from any land. The nearest humans are usually astronauts passing 400 km overhead.',
+    hasWarning: true, warningKey: 'point_nemo',
+    popularTags: ['Adventure', 'Nature', 'Hidden Gems'],
   },
 ];
 
@@ -875,6 +1074,424 @@ export const INITIAL_ITINERARIES: TravelItinerary[] = [
           { id: 'seact_13', title: 'Ikseon-dong Hanok Café Alleys', category: 'Cafe', location: 'Jongno, Seoul', description: 'Brunch in century-old hanok houses converted into trendy bakeries and boutiques.', estimatedDuration: '2 hrs', estimatedCost: 18, timeOfDay: 'Morning', lat: 37.5744, lng: 126.9897, googleMapsUrl: 'https://maps.google.com/?q=Ikseon-dong' },
           { id: 'seact_14', title: 'Dongdaemun Design Plaza', category: 'Architecture', location: 'Jung-gu, Seoul', description: 'Explore Zaha Hadid’s futuristic silver-curved landmark and its design exhibitions.', estimatedDuration: '2 hrs', estimatedCost: 10, timeOfDay: 'Afternoon', lat: 37.5665, lng: 127.0092, googleMapsUrl: 'https://maps.google.com/?q=Dongdaemun+Design+Plaza' },
           { id: 'seact_15', title: 'Cheonggyecheon Stream Walk & Hanjeongsik Dinner', category: 'Food', location: 'Jung-gu, Seoul', description: 'Stroll the lantern-lit urban stream, then feast on a 20-dish royal-style set dinner.', estimatedDuration: '3 hrs', estimatedCost: 55, timeOfDay: 'Evening', lat: 37.5691, lng: 126.9786, googleMapsUrl: 'https://maps.google.com/?q=Cheonggyecheon' },
+        ],
+      },
+    ],
+  },
+  // ---- Wild Card joke plans (one per impossible destination) ----
+  {
+    id: 'moon-3day-lowgravity',
+    title: '3 Days on the Moon: Low-Gravity Brunch & Crater Hikes',
+    destination: 'Tranquility Base', country: 'The Moon', flagEmoji: '🌙',
+    coverImage: '/destinations/moon-earthrise.jpg',
+    summary: 'Bounce between Apollo landmarks, hike a crater rim at one-sixth of your body weight, and watch the Earth rise over the horizon. Bring a very good camera and a very good spacesuit.',
+    durationDays: 3, season: 'Summer',
+    preferences: ['Adventure', 'Photography', 'Hidden Gems'],
+    companionStyle: 'Couple', estimatedCostUSD: 375000,
+    transportation: 'Lunar rover rental (unlimited craters, no seatbelts)',
+    weatherForecast: '127°C in the sun, −173°C in the shade. No chance of rain. Ever.',
+    creatorId: 'user_luna', creatorName: 'Luna Armstrong-Ng',
+    creatorAvatar: '',
+    likesCount: 512, bookmarksCount: 301, viewsCount: 9800, rating: 4.8, ratingsCount: 64,
+    isPublished: true, updatedAt: '1 day ago',
+    packingList: [
+      { id: 'mp1', category: 'Essentials', item: 'Spacesuit (pressure-tested, twice)', packed: true },
+      { id: 'mp2', category: 'Essentials', item: 'Spare oxygen — the big tank', packed: true },
+      { id: 'mp3', category: 'Clothing', item: 'Moon boots (the real kind)', packed: false },
+      { id: 'mp4', category: 'Electronics', item: 'Camera with an Earth-sized zoom', packed: false },
+      { id: 'mp5', category: 'Custom', item: 'Freeze-dried ice cream (emergency rations)', packed: false },
+    ],
+    comments: [
+      { id: 'mc1', userId: 'user_buzzfan', userName: 'Neil Fanclub', userAvatar: '', content: 'The low-gravity brunch was incredible. My pancakes took four minutes to land.', rating: 5, createdAt: '2 days ago' },
+      { id: 'mc2', userId: 'user_skeptic', userName: 'Gary Flatwood', userAvatar: '', content: 'Restaurant had great food but no atmosphere. 4 stars.', rating: 4, createdAt: '6 days ago' },
+    ],
+    days: [
+      {
+        dayNumber: 1, title: 'Touchdown at Tranquility Base',
+        activities: [
+          { id: 'moact_1', title: 'Apollo 11 Landing Site Tour', category: 'History', location: 'Sea of Tranquility', description: 'See the descent stage, the flag, and the most famous footprints in history (please do not step on them).', estimatedDuration: '2 hrs', estimatedCost: 0, timeOfDay: 'Morning', lat: -25.2, lng: -150.3 },
+          { id: 'moact_2', title: 'Low-Gravity Pancake Brunch', category: 'Food', location: 'Tranquility Base Diner', description: 'Flip a pancake and wait patiently while it drifts back down to the plate.', estimatedDuration: '1.5 hrs', estimatedCost: 450, timeOfDay: 'Afternoon', lat: -25.0, lng: -149.9 },
+          { id: 'moact_3', title: 'Earthrise Viewing Deck', category: 'Photography', location: 'Western Rim Lookout', description: 'Watch your entire home planet rise over the horizon and feel appropriately small.', estimatedDuration: '2 hrs', estimatedCost: 120, timeOfDay: 'Evening', lat: -24.8, lng: -150.4 },
+        ],
+      },
+      {
+        dayNumber: 2, title: 'Crater Country by Rover',
+        activities: [
+          { id: 'moact_4', title: 'Lunar Rover Road Trip', category: 'Road Trip', location: 'Highlands Loop', description: 'Kick up silver dust at a blistering 12 km/h in a vintage Apollo-style buggy.', estimatedDuration: '3 hrs', estimatedCost: 2500, timeOfDay: 'Morning', lat: -25.6, lng: -150.8 },
+          { id: 'moact_5', title: 'Crater Rim Hike', category: 'Hiking', location: 'West Crater', description: 'A 10 km hike that feels like 2 km, because you weigh about as much as a large dog.', estimatedDuration: '3 hrs', estimatedCost: 0, timeOfDay: 'Afternoon', lat: -25.9, lng: -151.0 },
+          { id: 'moact_6', title: 'Zero-Light-Pollution Stargazing', category: 'Nature', location: 'Far Side Viewing Field', description: 'No clouds, no atmosphere, no city lights — just every star you have ever heard of.', estimatedDuration: '2 hrs', estimatedCost: 80, timeOfDay: 'Evening', lat: -26.0, lng: -150.5 },
+        ],
+      },
+      {
+        dayNumber: 3, title: 'Moonwalk Masterclass & Farewell',
+        activities: [
+          { id: 'moact_7', title: 'Bunny-Hop Moonwalk Lesson', category: 'Adventure', location: 'Training Plain', description: 'Learn the official astronaut kangaroo hop so you stop face-planting in front of everyone.', estimatedDuration: '1.5 hrs', estimatedCost: 300, timeOfDay: 'Morning', lat: -25.3, lng: -150.1 },
+          { id: 'moact_8', title: 'Lunar Golf at Shepard’s Tee', category: 'Adventure', location: 'Fra Mauro Driving Range', description: 'Hit a golf ball roughly forever, like Alan Shepard did in 1971.', estimatedDuration: '2 hrs', estimatedCost: 900, timeOfDay: 'Afternoon', lat: -25.4, lng: -149.7 },
+          { id: 'moact_9', title: 'Gift Shop: Authentic Moon Rocks', category: 'Shopping', location: 'Tranquility Base Terminal', description: 'Every rock in the shop is technically an authentic moon rock. Prices are, sadly, astronomical.', estimatedDuration: '1 hr', estimatedCost: 60, timeOfDay: 'Evening', lat: -25.1, lng: -150.0 },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'iss-2day-orbit',
+    title: '2 Days on the ISS: 32 Sunrises & One Very Small Bathroom',
+    destination: 'ISS Cupola Suites', country: 'Low Earth Orbit', flagEmoji: '🛰️',
+    coverImage: '/destinations/iss.jpg',
+    summary: 'Float through the modules, see a sunrise every 90 minutes from the Cupola, and learn exactly how the space toilet works (there is a test).',
+    durationDays: 2, season: 'Winter',
+    preferences: ['Adventure', 'Photography', 'Luxury'],
+    companionStyle: 'Solo', estimatedCostUSD: 9000000,
+    transportation: 'Crew capsule up, gentle parachute splashdown home',
+    weatherForecast: 'Climate-controlled 22°C. Outside: −157°C to 121°C, depending on which way you face.',
+    creatorId: 'user_orbit', creatorName: 'Yuri Floatsalot',
+    creatorAvatar: '',
+    likesCount: 418, bookmarksCount: 260, viewsCount: 7600, rating: 4.7, ratingsCount: 41,
+    isPublished: true, updatedAt: '4 days ago',
+    packingList: [
+      { id: 'ip1', category: 'Essentials', item: 'Velcro (for everything)', packed: true },
+      { id: 'ip2', category: 'Toiletries', item: 'No-rinse shampoo', packed: true },
+      { id: 'ip3', category: 'Clothing', item: 'Socks with grip (you will not need them)', packed: false },
+      { id: 'ip4', category: 'Custom', item: 'Motion sickness pills — plenty', packed: false },
+    ],
+    comments: [
+      { id: 'ic1', userId: 'user_rocket', userName: 'Valentina Skye', userAvatar: '', content: 'Woke up upside down. Or right way up. Honestly impossible to tell. Loved it.', rating: 5, createdAt: '1 week ago' },
+    ],
+    days: [
+      {
+        dayNumber: 1, title: 'Docking & Floating Orientation',
+        activities: [
+          { id: 'isact_1', title: 'Docking & Hatch Opening Ceremony', category: 'Adventure', location: 'Harmony Module', description: 'Float through the hatch to a warm welcome and a mandatory hug that sends you both drifting.', estimatedDuration: '1.5 hrs', estimatedCost: 0, timeOfDay: 'Morning', lat: 35.2, lng: -160.1 },
+          { id: 'isact_2', title: 'Space Toilet Certification', category: 'Adventure', location: 'Tranquility Node', description: 'A two-hour hands-on course with a practical exam. Everyone remembers this part of the trip.', estimatedDuration: '2 hrs', estimatedCost: 250, timeOfDay: 'Afternoon', lat: 35.1, lng: -159.8 },
+          { id: 'isact_3', title: 'Cupola Sunset Marathon', category: 'Photography', location: 'The Cupola', description: 'Catch eight sunsets before bedtime through the seven-window observation dome.', estimatedDuration: '3 hrs', estimatedCost: 0, timeOfDay: 'Evening', lat: 34.9, lng: -160.3 },
+        ],
+      },
+      {
+        dayNumber: 2, title: 'Science, Snacks & Splashdown',
+        activities: [
+          { id: 'isact_4', title: 'Microgravity Water Ball Lab', category: 'Museum', location: 'Destiny Laboratory', description: 'Blow a floating sphere of water and drop a fizzy tablet inside it, purely for science.', estimatedDuration: '2 hrs', estimatedCost: 150, timeOfDay: 'Morning', lat: 35.0, lng: -160.0 },
+          { id: 'isact_5', title: 'Pouch-Tasting Menu', category: 'Food', location: 'Zvezda Galley', description: 'Seven courses, all in pouches, eaten very carefully so the crumbs do not haunt the air vents.', estimatedDuration: '1.5 hrs', estimatedCost: 400, timeOfDay: 'Afternoon', lat: 35.3, lng: -160.2 },
+          { id: 'isact_6', title: 'Re-entry & Splashdown', category: 'Adventure', location: 'Off the Coast of Florida', description: 'A fiery, rattly ride home ending in a gentle ocean bob and the shock of remembering what heavy feels like.', estimatedDuration: '6 hrs', estimatedCost: 0, timeOfDay: 'Evening', lat: 29.5, lng: -84.0 },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'mars-3day-olympus',
+    title: '3 Days on Mars: Olympus Mons, Dust Storms & Potato Farming',
+    destination: 'Olympus Mons Sector', country: 'Mars', flagEmoji: '🚀',
+    coverImage: 'https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?auto=format&fit=crop&w=1200&q=80',
+    summary: 'Summit the tallest volcano in the Solar System, watch a blue Martian sunset, and learn to grow potatoes in case your ride home is delayed. Indefinitely.',
+    durationDays: 3, season: 'Autumn',
+    preferences: ['Adventure', 'Mountain', 'Photography'],
+    companionStyle: 'Friends', estimatedCostUSD: 150000,
+    transportation: 'Pressurised rover (top speed: patient)',
+    weatherForecast: '−63°C average, global dust storm 40% likely. Sunsets are blue, which is unsettling.',
+    creatorId: 'user_redplanet', creatorName: 'Mark Watneyish',
+    creatorAvatar: '',
+    likesCount: 690, bookmarksCount: 420, viewsCount: 12400, rating: 4.9, ratingsCount: 88,
+    isPublished: true, updatedAt: '3 days ago',
+    packingList: [
+      { id: 'mrp1', category: 'Essentials', item: 'Seed potatoes (just in case)', packed: true },
+      { id: 'mrp2', category: 'Essentials', item: 'Duct tape — lots of duct tape', packed: true },
+      { id: 'mrp3', category: 'Clothing', item: 'Dust-proof goggles', packed: false },
+      { id: 'mrp4', category: 'Electronics', item: 'Long-range radio (7-minute delay)', packed: false },
+    ],
+    comments: [
+      { id: 'mrc1', userId: 'user_botanist', userName: 'Sol Gardener', userAvatar: '', content: 'Potato class saved my life. Literally. The return flight was 18 months late.', rating: 5, createdAt: '4 days ago' },
+    ],
+    days: [
+      {
+        dayNumber: 1, title: 'Landing & Habitat Check-In',
+        activities: [
+          { id: 'mract_1', title: 'Seven Minutes of Terror Landing', category: 'Adventure', location: 'Tharsis Landing Zone', description: 'Parachutes, retro-rockets, and a sky crane lower you gently into a lot of red dust.', estimatedDuration: '1 hr', estimatedCost: 0, timeOfDay: 'Morning', lat: 18.7, lng: -133.9 },
+          { id: 'mract_2', title: 'Habitat Potato Farming Workshop', category: 'Food', location: 'Hab Module 2', description: 'Learn to grow dinner in Martian soil with a few creative, slightly gross fertiliser tips.', estimatedDuration: '2 hrs', estimatedCost: 90, timeOfDay: 'Afternoon', lat: 18.6, lng: -133.7 },
+          { id: 'mract_3', title: 'Blue Sunset Picnic', category: 'Photography', location: 'Crater Overlook', description: 'Martian sunsets glow blue. Eat your potatoes and quietly question everything you know.', estimatedDuration: '1.5 hrs', estimatedCost: 30, timeOfDay: 'Evening', lat: 18.5, lng: -133.6 },
+        ],
+      },
+      {
+        dayNumber: 2, title: 'Olympus Mons Summit Push',
+        activities: [
+          { id: 'mract_4', title: 'Rover to the Escarpment', category: 'Road Trip', location: 'Olympus Mons Base', description: 'A cliff six kilometres high marks the edge of a volcano the size of France.', estimatedDuration: '4 hrs', estimatedCost: 1200, timeOfDay: 'Morning', lat: 18.4, lng: -134.0 },
+          { id: 'mract_5', title: 'Summit Caldera Walk', category: 'Hiking', location: 'Olympus Mons Summit, 21.9 km', description: 'Stand two and a half times higher than Everest, technically above most of the atmosphere.', estimatedDuration: '3 hrs', estimatedCost: 0, timeOfDay: 'Afternoon', lat: 18.65, lng: -133.8 },
+          { id: 'mract_6', title: 'Phobos-Rise Camping', category: 'Camping', location: 'Summit Shelter', description: 'Watch Mars’ potato-shaped moon zoom across the sky twice before breakfast.', estimatedDuration: '2 hrs', estimatedCost: 150, timeOfDay: 'Evening', lat: 18.66, lng: -133.82 },
+        ],
+      },
+      {
+        dayNumber: 3, title: 'Dust Storm Day',
+        activities: [
+          { id: 'mract_7', title: 'Indoor Board Game Marathon', category: 'Family', location: 'Hab Common Room', description: 'The planet-wide dust storm arrived early. Monopoly will be played. Friendships will be tested.', estimatedDuration: '4 hrs', estimatedCost: 0, timeOfDay: 'Morning', lat: 18.6, lng: -133.7 },
+          { id: 'mract_8', title: 'Rover Selfie in the Storm', category: 'Photography', location: 'Hab Airlock', description: 'Step outside for exactly one heroic, extremely orange photo, then run back in.', estimatedDuration: '30 min', estimatedCost: 0, timeOfDay: 'Afternoon', lat: 18.61, lng: -133.71 },
+          { id: 'mract_9', title: 'Return Flight Briefing (Delayed)', category: 'Adventure', location: 'Mission Control Uplink', description: 'Good news: there is a return flight. Bad news: it is in 26 months. Please enjoy your stay.', estimatedDuration: '1 hr', estimatedCost: 0, timeOfDay: 'Evening', lat: 18.62, lng: -133.72 },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'bermuda-2day-vanish',
+    title: '2 Days in the Bermuda Triangle: Lost Luggage Speedrun',
+    destination: 'Bermuda Triangle', country: 'Atlantic Ocean', flagEmoji: '🔺',
+    coverImage: '/destinations/bermuda-storm.jpg',
+    summary: 'Pink beaches, shipwreck snorkels, and a sunset cruise with a compass that refuses to cooperate. Return date: probably.',
+    durationDays: 2, season: 'Summer',
+    preferences: ['Beach', 'Adventure', 'Hidden Gems'],
+    companionStyle: 'Friends', estimatedCostUSD: 640,
+    transportation: 'Rented boat with a compass that "has opinions"',
+    weatherForecast: 'Sunny 29°C, light breeze, 3% chance of mysterious fog',
+    creatorId: 'user_drift', creatorName: 'Amelia Lostwell',
+    creatorAvatar: '',
+    likesCount: 377, bookmarksCount: 190, viewsCount: 6100, rating: 4.6, ratingsCount: 37,
+    isPublished: true, updatedAt: '5 days ago',
+    packingList: [
+      { id: 'bp1', category: 'Documents', item: 'Waterproof passport', packed: true },
+      { id: 'bp2', category: 'Essentials', item: 'Backup compass (and a backup for that)', packed: false },
+      { id: 'bp3', category: 'Clothing', item: 'Reef-safe sunscreen', packed: true },
+      { id: 'bp4', category: 'Custom', item: 'Note for future rescuers', packed: false },
+    ],
+    comments: [
+      { id: 'bc1', userId: 'user_driftwood', userName: 'Captain Driftwood', userAvatar: '', content: 'Lovely trip. Has anyone seen my boat?', rating: 4, createdAt: '40 years ago' },
+    ],
+    days: [
+      {
+        dayNumber: 1, title: 'Pink Sand & Shipwrecks',
+        activities: [
+          { id: 'bmact_1', title: 'Horseshoe Bay Pink Sand Beach', category: 'Beach', location: 'Southampton, Bermuda', description: 'Soft pink sand made of crushed shells — the one thing here that is exactly what it seems.', estimatedDuration: '3 hrs', estimatedCost: 0, timeOfDay: 'Morning', lat: 32.2528, lng: -64.8278 },
+          { id: 'bmact_2', title: 'Shipwreck Snorkel Safari', category: 'Adventure', location: 'Western Reefs', description: 'Snorkel over centuries of ships that arrived and, crucially, never left.', estimatedDuration: '2.5 hrs', estimatedCost: 95, timeOfDay: 'Afternoon', lat: 32.35, lng: -64.95 },
+          { id: 'bmact_3', title: 'Rum Swizzle Sundowner', category: 'Nightlife', location: 'St. George’s', description: 'The island’s signature cocktail, sipped very carefully so you remember the way back.', estimatedDuration: '2 hrs', estimatedCost: 35, timeOfDay: 'Evening', lat: 32.3812, lng: -64.6774 },
+        ],
+      },
+      {
+        dayNumber: 2, title: 'Into the Triangle',
+        activities: [
+          { id: 'bmact_4', title: 'Compass Calibration Workshop', category: 'Adventure', location: 'Hamilton Harbour', description: 'Watch three compasses point three different ways and decide which one you trust.', estimatedDuration: '1 hr', estimatedCost: 20, timeOfDay: 'Morning', lat: 32.2915, lng: -64.7847 },
+          { id: 'bmact_5', title: 'Deep Blue Triangle Cruise', category: 'Adventure', location: 'Open Atlantic', description: 'Sail straight into the middle and wave at anything that looks like a shimmering doorway.', estimatedDuration: '4 hrs', estimatedCost: 180, timeOfDay: 'Afternoon', lat: 27.0, lng: -70.0 },
+          { id: 'bmact_6', title: 'Lost & Found Office Visit', category: 'Hidden Gems', location: 'Somewhere at Sea', description: 'Browse a century of vanished luggage. Your suitcase from 2019 may be here.', estimatedDuration: '1.5 hrs', estimatedCost: 0, timeOfDay: 'Evening', lat: 25.0, lng: -71.0 },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'area51-2day-nothing',
+    title: '2 Days at Area 51: A Detailed Tour of Nothing',
+    destination: 'Area 51', country: 'Nevada Desert', flagEmoji: '🛸',
+    coverImage: '/destinations/area51-camera.jpg',
+    summary: 'Drive the Extraterrestrial Highway, eat at the alien-themed diner, stare meaningfully at a fence, and wave at the nice men in the white truck.',
+    durationDays: 2, season: 'Autumn',
+    preferences: ['Road Trip', 'Hidden Gems', 'Photography'],
+    companionStyle: 'Friends', estimatedCostUSD: 102,
+    transportation: 'Rental car with tinfoil-lined roof (optional upgrade)',
+    weatherForecast: 'Clear skies, 24°C, unidentified flying objects possible after dark',
+    creatorId: 'user_truth', creatorName: 'Fox Muldowney',
+    creatorAvatar: '',
+    likesCount: 451, bookmarksCount: 233, viewsCount: 8100, rating: 4.5, ratingsCount: 52,
+    isPublished: true, updatedAt: 'redacted',
+    packingList: [
+      { id: 'ap1', category: 'Essentials', item: 'Tinfoil hat (fitted)', packed: true },
+      { id: 'ap2', category: 'Electronics', item: 'Binoculars (you will see nothing)', packed: true },
+      { id: 'ap3', category: 'Custom', item: 'Snacks for the long stare', packed: false },
+    ],
+    comments: [
+      { id: 'ac1', userId: 'user_anon', userName: '[REDACTED]', userAvatar: '', content: 'There is nothing here. Great tour. Do not come.', rating: 5, createdAt: '[REDACTED]' },
+    ],
+    days: [
+      {
+        dayNumber: 1, title: 'Extraterrestrial Highway',
+        activities: [
+          { id: 'a5act_1', title: 'Extraterrestrial Highway Road Trip', category: 'Road Trip', location: 'Nevada State Route 375', description: 'A long, empty desert highway officially named after aliens. The signs are the main attraction.', estimatedDuration: '3 hrs', estimatedCost: 40, timeOfDay: 'Morning', lat: 37.6461, lng: -115.7454 },
+          { id: 'a5act_2', title: 'Alien Burger at the Little A’Le’Inn', category: 'Food', location: 'Rachel, Nevada', description: 'The only diner in town, with an alien burger and a very knowing waitress.', estimatedDuration: '1.5 hrs', estimatedCost: 18, timeOfDay: 'Afternoon', lat: 37.6461, lng: -115.7454 },
+          { id: 'a5act_3', title: 'Desert UFO Watch', category: 'Nature', location: 'Tikaboo Peak Road', description: 'Lie on the warm sand and decide whether every satellite is a satellite.', estimatedDuration: '3 hrs', estimatedCost: 0, timeOfDay: 'Evening', lat: 37.3434, lng: -115.3586 },
+        ],
+      },
+      {
+        dayNumber: 2, title: 'The Famous Fence',
+        activities: [
+          { id: 'a5act_4', title: 'Groom Lake Road Gate Visit', category: 'Hidden Gems', location: 'Groom Lake Road', description: 'Stand politely at the warning signs and do not take one single step further. Seriously.', estimatedDuration: '1 hr', estimatedCost: 0, timeOfDay: 'Morning', lat: 37.3486, lng: -115.6189 },
+          { id: 'a5act_5', title: 'Camo Dudes Spotting', category: 'Photography', location: 'Hilltop Overlook', description: 'Spot the famous white pickup truck watching you from the ridge. Wave. They will not wave back.', estimatedDuration: '1.5 hrs', estimatedCost: 0, timeOfDay: 'Afternoon', lat: 37.3, lng: -115.65 },
+          { id: 'a5act_6', title: 'Souvenir NDA Signing', category: 'Shopping', location: 'Rachel, Nevada', description: 'Pick up an "I visited Area 51" T-shirt and sign the form confirming that you did not.', estimatedDuration: '1 hr', estimatedCost: 44, timeOfDay: 'Evening', lat: 37.6461, lng: -115.7454 },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'everest-3day-summit',
+    title: '3 Days to the Top of Everest (Abridged Edition)',
+    destination: 'Everest Summit', country: 'Himalayas', flagEmoji: '🏔️',
+    coverImage: '/destinations/everest-aerial.jpg',
+    summary: 'The usual two-month expedition, boldly compressed into three days for travelers on a tight schedule. Your lungs will file a complaint.',
+    durationDays: 3, season: 'Spring',
+    preferences: ['Mountain', 'Hiking', 'Adventure'],
+    companionStyle: 'Friends', estimatedCostUSD: 3600,
+    transportation: 'Your legs, a sherpa, and an extremely optimistic helicopter',
+    weatherForecast: '−30°C with 150 km/h jet-stream winds at the summit. Sunny, though!',
+    creatorId: 'user_peak', creatorName: 'Tenzing Hilary-Moore',
+    creatorAvatar: '',
+    likesCount: 389, bookmarksCount: 211, viewsCount: 7000, rating: 4.4, ratingsCount: 46,
+    isPublished: true, updatedAt: '2 weeks ago',
+    packingList: [
+      { id: 'ep1', category: 'Clothing', item: 'Down suit rated to −40°C', packed: true },
+      { id: 'ep2', category: 'Essentials', item: 'Bottled oxygen (3 bottles)', packed: true },
+      { id: 'ep3', category: 'Essentials', item: 'Crampons and ice axe', packed: false },
+      { id: 'ep4', category: 'Custom', item: 'Summit flag to wave for exactly 15 minutes', packed: false },
+    ],
+    comments: [
+      { id: 'ec1', userId: 'user_basecamp', userName: 'Sherpa Dorje', userAvatar: '', content: 'I have climbed it 21 times. This itinerary is impossible. I gave it 5 stars because it made me laugh.', rating: 5, createdAt: '3 weeks ago' },
+    ],
+    days: [
+      {
+        dayNumber: 1, title: 'Base Camp & Khumbu Icefall',
+        activities: [
+          { id: 'evact_1', title: 'Everest Base Camp Check-In', category: 'Camping', location: 'Base Camp, 5,364 m', description: 'Pitch your tent among hundreds of colourful others and pretend you are acclimatised.', estimatedDuration: '2 hrs', estimatedCost: 0, timeOfDay: 'Morning', lat: 28.0043, lng: 86.8571 },
+          { id: 'evact_2', title: 'Khumbu Icefall Ladder Crossing', category: 'Adventure', location: 'Khumbu Icefall', description: 'Cross bottomless crevasses on aluminium ladders tied together with rope and hope.', estimatedDuration: '5 hrs', estimatedCost: 0, timeOfDay: 'Afternoon', lat: 27.9962, lng: 86.8668 },
+          { id: 'evact_3', title: 'Dal Bhat Power Dinner', category: 'Food', location: 'Camp I', description: 'Lentils and rice, twice, with unlimited refills. Dal bhat power, 24 hour.', estimatedDuration: '1 hr', estimatedCost: 12, timeOfDay: 'Evening', lat: 27.9878, lng: 86.8857 },
+        ],
+      },
+      {
+        dayNumber: 2, title: 'The Death Zone Commute',
+        activities: [
+          { id: 'evact_4', title: 'Western Cwm Glacier Trek', category: 'Hiking', location: 'Western Cwm', description: 'A sun-baked valley of ice that somehow manages to be both freezing and roasting.', estimatedDuration: '5 hrs', estimatedCost: 0, timeOfDay: 'Morning', lat: 27.9826, lng: 86.9039 },
+          { id: 'evact_5', title: 'Lhotse Face Fixed-Rope Climb', category: 'Mountain', location: 'Lhotse Face', description: 'A steep wall of blue ice climbed one slow, gasping step at a time.', estimatedDuration: '6 hrs', estimatedCost: 0, timeOfDay: 'Afternoon', lat: 27.9739, lng: 86.9197 },
+          { id: 'evact_6', title: 'South Col Nap (2 hours, max)', category: 'Camping', location: 'Camp IV, 7,906 m', description: 'Rest briefly in the death zone before an 11 pm wake-up. Sweet dreams.', estimatedDuration: '2 hrs', estimatedCost: 0, timeOfDay: 'Evening', lat: 27.9727, lng: 86.9293 },
+        ],
+      },
+      {
+        dayNumber: 3, title: 'Summit Day',
+        activities: [
+          { id: 'evact_7', title: 'Queue at the Hillary Step', category: 'Adventure', location: 'Southeast Ridge, 8,790 m', description: 'Join the world’s highest and coldest queue. Bring patience and a good playlist.', estimatedDuration: '2 hrs', estimatedCost: 0, timeOfDay: 'Morning', lat: 27.9868, lng: 86.9247 },
+          { id: 'evact_8', title: 'Summit Selfie', category: 'Photography', location: 'Everest Summit, 8,849 m', description: 'Fifteen minutes on a dining-table-sized peak at the top of the world. Make that pose count.', estimatedDuration: '15 min', estimatedCost: 0, timeOfDay: 'Afternoon', lat: 27.9881, lng: 86.925 },
+          { id: 'evact_9', title: 'Helicopter Home & Very Long Nap', category: 'Luxury', location: 'Lukla', description: 'Skip the walk back down. You have earned it. Your toes certainly think so.', estimatedDuration: '3 hrs', estimatedCost: 3500, timeOfDay: 'Evening', lat: 27.6869, lng: 86.7314 },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'mariana-2day-deep',
+    title: '2 Days at the Bottom of the Mariana Trench',
+    destination: 'Challenger Deep', country: 'Pacific Ocean', flagEmoji: '🐙',
+    coverImage: '/destinations/mariana-corals.jpg',
+    summary: 'Descend 11 km in a sub the size of a fridge, meet the dumbo octopus, and enjoy the quietest, darkest, most pressurised holiday on Earth.',
+    durationDays: 2, season: 'Winter',
+    preferences: ['Adventure', 'Nature', 'Hidden Gems'],
+    companionStyle: 'Couple', estimatedCostUSD: 1500000,
+    transportation: 'Two-seat titanium submersible (window: one, small)',
+    weatherForecast: '2°C, pitch black, 1,086 bar of pressure. Visibility: whatever your headlight reaches.',
+    creatorId: 'user_abyss', creatorName: 'Marina Fathoms',
+    creatorAvatar: '',
+    likesCount: 298, bookmarksCount: 174, viewsCount: 5200, rating: 4.6, ratingsCount: 29,
+    isPublished: true, updatedAt: '1 week ago',
+    packingList: [
+      { id: 'mtp1', category: 'Clothing', item: 'Thick wool jumper (it is 2°C)', packed: true },
+      { id: 'mtp2', category: 'Electronics', item: 'Very powerful flashlight', packed: true },
+      { id: 'mtp3', category: 'Custom', item: 'Snacks for the 4-hour descent', packed: false },
+    ],
+    comments: [
+      { id: 'mtc1', userId: 'user_cameron', userName: 'James Deepwater', userAvatar: '', content: 'Saw a fish that was mostly teeth. It saw me too. We have an understanding now.', rating: 5, createdAt: '2 weeks ago' },
+    ],
+    days: [
+      {
+        dayNumber: 1, title: 'The Long Way Down',
+        activities: [
+          { id: 'mtact_1', title: 'Submersible Safety Briefing', category: 'Adventure', location: 'Support Ship, Guam', description: 'Learn where the oxygen is, where the snacks are, and why you should not touch the big red button.', estimatedDuration: '1 hr', estimatedCost: 0, timeOfDay: 'Morning', lat: 13.4443, lng: 144.7937 },
+          { id: 'mtact_2', title: 'Four-Hour Descent Through the Midnight Zone', category: 'Nature', location: 'Mariana Trench Water Column', description: 'Watch sunlight vanish forever, replaced by glowing jellyfish and existential thoughts.', estimatedDuration: '4 hrs', estimatedCost: 0, timeOfDay: 'Afternoon', lat: 11.36, lng: 142.2 },
+          { id: 'mtact_3', title: 'Bioluminescence Light Show', category: 'Photography', location: 'Hadal Zone, 8,000 m', description: 'Switch off the floodlights and watch the locals put on their own glowing show.', estimatedDuration: '1.5 hrs', estimatedCost: 0, timeOfDay: 'Evening', lat: 11.355, lng: 142.199 },
+        ],
+      },
+      {
+        dayNumber: 2, title: 'Challenger Deep',
+        activities: [
+          { id: 'mtact_4', title: 'Touchdown at Challenger Deep', category: 'Adventure', location: 'Challenger Deep, 10,935 m', description: 'Kiss the bottom of the world softly and kick up some very ancient mud.', estimatedDuration: '2 hrs', estimatedCost: 0, timeOfDay: 'Morning', lat: 11.3493, lng: 142.1996 },
+          { id: 'mtact_5', title: 'Dumbo Octopus Meet & Greet', category: 'Nature', location: 'Trench Floor', description: 'The cutest resident of the deep flaps its little ear-fins at you. You will cry a bit.', estimatedDuration: '1.5 hrs', estimatedCost: 0, timeOfDay: 'Afternoon', lat: 11.35, lng: 142.2 },
+          { id: 'mtact_6', title: 'Slow Ascent & Sunlight Reunion', category: 'Adventure', location: 'Surface', description: 'Four hours up, then the first glimpse of sun feels like the best day of your life.', estimatedDuration: '4 hrs', estimatedCost: 0, timeOfDay: 'Evening', lat: 11.4, lng: 142.25 },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'atlantis-3day-legend',
+    title: '3 Days in Atlantis: Marble Palaces & Mermaid Brunch',
+    destination: 'Lost City of Atlantis', country: 'Atlantic Ocean', flagEmoji: '🔱',
+    coverImage: '/destinations/atlantis.jpg',
+    summary: 'Tour the sunken royal palace, dine with the locals at a coral-reef brunch, and visit the museum of Things Plato Got Wrong.',
+    durationDays: 3, season: 'Summer',
+    preferences: ['History', 'Architecture', 'Hidden Gems'],
+    companionStyle: 'Family', estimatedCostUSD: 28800,
+    transportation: 'Seahorse-drawn chariot (gills required)',
+    weatherForecast: 'Underwater 24°C, gentle currents, chance of kraken 2%',
+    creatorId: 'user_poseidon', creatorName: 'Coral Tridente',
+    creatorAvatar: '',
+    likesCount: 455, bookmarksCount: 288, viewsCount: 8800, rating: 4.7, ratingsCount: 58,
+    isPublished: true, updatedAt: '9,600 years ago',
+    packingList: [
+      { id: 'atp1', category: 'Essentials', item: 'Gills (or a really long snorkel)', packed: true },
+      { id: 'atp2', category: 'Clothing', item: 'Formal toga for the Royal Palace', packed: false },
+      { id: 'atp3', category: 'Documents', item: 'Laminated copy of Plato’s "Critias"', packed: false },
+    ],
+    comments: [
+      { id: 'atc1', userId: 'user_plato', userName: 'Plato', userAvatar: '', content: 'Told you it was real. Nobody listened for 2,400 years.', rating: 5, createdAt: '360 BC' },
+    ],
+    days: [
+      {
+        dayNumber: 1, title: 'Arrival at the Concentric Harbours',
+        activities: [
+          { id: 'atact_1', title: 'Grand Canal Seahorse Ride', category: 'Adventure', location: 'Outer Ring Harbour', description: 'Glide through the famous rings of land and sea that Plato described in suspicious detail.', estimatedDuration: '2 hrs', estimatedCost: 120, timeOfDay: 'Morning', lat: 31.1, lng: -28.1 },
+          { id: 'atact_2', title: 'Mermaid Brunch at the Coral Café', category: 'Food', location: 'Coral Quarter', description: 'Seaweed eggs benedict served by staff who are, frankly, very good swimmers.', estimatedDuration: '1.5 hrs', estimatedCost: 85, timeOfDay: 'Afternoon', lat: 31.05, lng: -28.05 },
+          { id: 'atact_3', title: 'Bioluminescent Boulevard Stroll', category: 'Nightlife', location: 'Orichalcum Avenue', description: 'Wander streets lit by glowing plankton and the gentle hum of ancient magic.', estimatedDuration: '2 hrs', estimatedCost: 0, timeOfDay: 'Evening', lat: 31.0, lng: -28.0 },
+        ],
+      },
+      {
+        dayNumber: 2, title: 'The Royal Palace',
+        activities: [
+          { id: 'atact_4', title: 'Temple of Poseidon Tour', category: 'Architecture', location: 'Central Island', description: 'Gold, silver, and orichalcum walls, plus a statue of Poseidon driving six winged horses.', estimatedDuration: '3 hrs', estimatedCost: 60, timeOfDay: 'Morning', lat: 31.0, lng: -27.95 },
+          { id: 'atact_5', title: 'Museum of Things Plato Got Wrong', category: 'Museum', location: 'Atlantean Archive', description: 'An entire wing about the "sank in a single day" part. Locals are still annoyed.', estimatedDuration: '2 hrs', estimatedCost: 25, timeOfDay: 'Afternoon', lat: 30.95, lng: -28.0 },
+          { id: 'atact_6', title: 'Royal Banquet with the King', category: 'Food', location: 'Palace Great Hall', description: 'Ten courses of seafood, which feels a little awkward given who else is at the table.', estimatedDuration: '3 hrs', estimatedCost: 400, timeOfDay: 'Evening', lat: 31.0, lng: -27.98 },
+        ],
+      },
+      {
+        dayNumber: 3, title: 'Sunken Treasures',
+        activities: [
+          { id: 'atact_7', title: 'Treasure Diving at the Old Mint', category: 'Adventure', location: 'Merchant District', description: 'Hunt for gold coins stamped with a trident. Finders keepers is the official policy.', estimatedDuration: '3 hrs', estimatedCost: 150, timeOfDay: 'Morning', lat: 31.02, lng: -28.08 },
+          { id: 'atact_8', title: 'Kraken Petting Zoo', category: 'Family', location: 'Deep Ring Aquarium', description: 'Gently pat a baby kraken. Keep all limbs where the parents can see them.', estimatedDuration: '1.5 hrs', estimatedCost: 45, timeOfDay: 'Afternoon', lat: 30.98, lng: -28.1 },
+          { id: 'atact_9', title: 'Surface Farewell & Decompression', category: 'Adventure', location: 'Outer Ring Harbour', description: 'Rise slowly back to the surface world, where everyone will absolutely believe your story.', estimatedDuration: '2 hrs', estimatedCost: 0, timeOfDay: 'Evening', lat: 31.1, lng: -28.1 },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'point-nemo-2day-alone',
+    title: '2 Days at Point Nemo: The Ultimate Social-Distancing Retreat',
+    destination: 'Point Nemo', country: 'South Pacific Ocean', flagEmoji: '🧭',
+    coverImage: '/destinations/point-nemo.jpg',
+    summary: 'Sail to the most remote spot on Earth, 2,688 km from the nearest land. Your closest neighbours will be astronauts flying overhead.',
+    durationDays: 2, season: 'Spring',
+    preferences: ['Adventure', 'Nature', 'Hidden Gems'],
+    companionStyle: 'Solo', estimatedCostUSD: 1800,
+    transportation: 'Small sailboat and a lot of podcasts',
+    weatherForecast: 'Cool 9°C, rolling swells, chance of falling space debris (low, but not zero)',
+    creatorId: 'user_nemo', creatorName: 'Captain Solitaire',
+    creatorAvatar: '',
+    likesCount: 233, bookmarksCount: 140, viewsCount: 4300, rating: 4.5, ratingsCount: 21,
+    isPublished: true, updatedAt: '2 weeks ago',
+    packingList: [
+      { id: 'np1', category: 'Electronics', item: '400 downloaded podcasts', packed: true },
+      { id: 'np2', category: 'Essentials', item: 'Satellite phone', packed: true },
+      { id: 'np3', category: 'Custom', item: 'A sturdy hat (for falling satellites)', packed: false },
+    ],
+    comments: [
+      { id: 'nc1', userId: 'user_introvert', userName: 'Quiet Kim', userAvatar: '', content: 'Perfect. Nobody talked to me for two whole days. Already booked again.', rating: 5, createdAt: '1 month ago' },
+    ],
+    days: [
+      {
+        dayNumber: 1, title: 'Sailing to Nowhere',
+        activities: [
+          { id: 'npact_1', title: 'Coordinates Arrival Ceremony', category: 'Adventure', location: '48°52.6′S 123°23.6′W', description: 'Confirm your GPS reads exactly Point Nemo, then celebrate with absolutely nobody.', estimatedDuration: '1 hr', estimatedCost: 0, timeOfDay: 'Morning', lat: -48.8767, lng: -123.3933 },
+          { id: 'npact_2', title: 'Spacecraft Graveyard Snorkel', category: 'Adventure', location: 'Point Nemo Sea Floor (far below)', description: 'Over 260 old spacecraft rest 4 km beneath you. You will not see them, but it feels important.', estimatedDuration: '2 hrs', estimatedCost: 0, timeOfDay: 'Afternoon', lat: -48.88, lng: -123.4 },
+          { id: 'npact_3', title: 'Wave at the ISS', category: 'Photography', location: 'Boat Deck', description: 'The space station passes 400 km overhead. Wave. They are technically your nearest neighbours.', estimatedDuration: '30 min', estimatedCost: 0, timeOfDay: 'Evening', lat: -48.87, lng: -123.39 },
+        ],
+      },
+      {
+        dayNumber: 2, title: 'Peak Solitude',
+        activities: [
+          { id: 'npact_4', title: 'Sunrise Meditation (Nobody Interrupts)', category: 'Nature', location: 'Boat Deck', description: 'Meditate with a 2,688 km buffer zone between you and any notification.', estimatedDuration: '1 hr', estimatedCost: 0, timeOfDay: 'Morning', lat: -48.8767, lng: -123.3933 },
+          { id: 'npact_5', title: 'Albatross Birdwatching', category: 'Nature', location: 'Open Ocean', description: 'The only locals around, gliding past with three-metre wingspans and zero interest in you.', estimatedDuration: '2 hrs', estimatedCost: 0, timeOfDay: 'Afternoon', lat: -48.9, lng: -123.35 },
+          { id: 'npact_6', title: 'Message in a Bottle Workshop', category: 'Hidden Gems', location: 'Boat Cabin', description: 'Write a note, seal it, toss it in. It will arrive somewhere in roughly 30 years.', estimatedDuration: '1 hr', estimatedCost: 5, timeOfDay: 'Evening', lat: -48.87, lng: -123.4 },
         ],
       },
     ],

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { AlertTriangle, ShieldCheck, ArrowRight } from 'lucide-react';
 import { TravelWarning } from '../types/travel';
 
@@ -8,12 +8,27 @@ interface TravelWarningDialogProps {
   onCancel: () => void;
 }
 
-export const TravelWarningDialog: React.FC<TravelWarningDialogProps> = ({
+export const TravelWarningDialog: React.FC<TravelWarningDialogProps> = ({ warning, ...rest }) => {
+  if (!warning) return null;
+  // Mounted fresh on every open, so each visit rolls a new variant and starts at step one.
+  return <WarningContent warning={warning} {...rest} />;
+};
+
+const WarningContent: React.FC<TravelWarningDialogProps & { warning: TravelWarning }> = ({
   warning,
   onConfirm,
   onCancel
 }) => {
-  if (!warning) return null;
+  const [variant] = useState(() => warning.variants[Math.floor(Math.random() * warning.variants.length)]);
+  const [isDoubleCheck, setIsDoubleCheck] = useState(false);
+
+  const title = isDoubleCheck && warning.doubleCheck ? warning.doubleCheck.title : variant.title;
+  const message = isDoubleCheck && warning.doubleCheck ? warning.doubleCheck.message : variant.message;
+  const confirmText = isDoubleCheck && warning.doubleCheck ? warning.doubleCheck.confirmButtonText : warning.confirmButtonText;
+  const handleConfirm = () => {
+    if (warning.doubleCheck && !isDoubleCheck) setIsDoubleCheck(true);
+    else onConfirm();
+  };
 
   return (
     <div onMouseDown={e => { if (e.target === e.currentTarget) onCancel(); }} id="travel-warning-modal" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/40 dark:bg-stone-950/70 backdrop-blur-sm animate-fade-in">
@@ -26,13 +41,13 @@ export const TravelWarningDialog: React.FC<TravelWarningDialogProps> = ({
 
         <div className="space-y-2">
           <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-3 py-1 rounded-full border border-amber-200 dark:border-amber-800">
-            <AlertTriangle className="w-3.5 h-3.5" /> Regional Humorous Advisory
+            <AlertTriangle className="w-3.5 h-3.5" /> {isDoubleCheck ? 'Final Confirmation' : 'Regional Humorous Advisory'}
           </span>
           <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 font-serif-heading">
-            {warning.title}
+            {title}
           </h3>
           <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed px-2">
-            {warning.message}
+            {message}
           </p>
         </div>
 
@@ -48,10 +63,10 @@ export const TravelWarningDialog: React.FC<TravelWarningDialogProps> = ({
 
           <button
             id="warning-confirm-btn"
-            onClick={onConfirm}
+            onClick={handleConfirm}
             className="flex-1 py-2.5 px-4 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-1.5"
           >
-            {warning.confirmButtonText}
+            {confirmText}
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

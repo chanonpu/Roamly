@@ -82,6 +82,10 @@ export interface TravelItinerary {
   updatedAt: string;
 }
 
+export type WarningKey =
+  | 'north_korea' | 'australia' | 'switzerland' | 'antarctica' | 'mars'
+  | 'moon' | 'iss' | 'bermuda' | 'area51' | 'everest' | 'mariana' | 'atlantis' | 'point_nemo';
+
 export interface Destination {
   id: string;
   city: string;
@@ -95,18 +99,20 @@ export interface Destination {
   lng: number;
   description: string;
   hasWarning?: boolean;
-  warningKey?: 'north_korea' | 'australia' | 'switzerland' | 'antarctica' | 'mars';
+  warningKey?: WarningKey;
   popularTags: TravelCategory[];
 }
 
 export interface TravelWarning {
   key: string;
   destinationName: string;
-  title: string;
-  message: string;
+  /** One is picked at random each time the dialog opens. */
+  variants: { title: string; message: string }[];
   confirmButtonText: string;
   cancelButtonText: string;
   icon: string;
+  /** Optional second "are you really sure?" step shown after the first confirm. */
+  doubleCheck?: { title: string; message: string; confirmButtonText: string };
 }
 
 export interface UserProfile {
