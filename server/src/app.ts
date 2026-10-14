@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import helmet from 'helmet';
+import helmetImport from 'helmet';
 import { destinationsRouter } from './routes/destinations.js';
 import { currenciesRouter } from './routes/currencies.js';
 import { itinerariesRouter } from './routes/itineraries.js';
@@ -10,6 +10,11 @@ import { analyticsRouter } from './routes/analytics.js';
 import { notFoundHandler, errorHandler } from './middleware/errorHandler.js';
 import { isGeminiConfigured } from './services/ai.js';
 import { apiLimiter } from './middleware/rateLimit.js';
+
+// Vercel's builder type-checks with CommonJS resolution, so it types helmet's
+// default import as the whole module; Node loads the ESM build, where it's the
+// function. `import('helmet').default` is the function under both.
+const helmet = helmetImport as unknown as typeof import('helmet').default;
 
 export function createApp() {
   const app = express();
