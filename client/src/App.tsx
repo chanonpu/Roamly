@@ -429,6 +429,7 @@ export default function App() {
         onClose={() => setIsAuthModalOpen(false)}
         onSignIn={auth.signIn}
         onSignUp={auth.signUp}
+        onSignInWithGoogle={auth.signInWithGoogle}
       />
     </div>
   );

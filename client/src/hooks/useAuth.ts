@@ -45,6 +45,16 @@ export function useAuth() {
     return { error: error?.message ?? null };
   }, []);
 
+  // Redirects to Google and back; the session is picked up from the return URL
+  // by supabase-js and delivered through onAuthStateChange above.
+  const signInWithGoogle = useCallback(async (): Promise<AuthResult> => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin },
+    });
+    return { error: error?.message ?? null };
+  }, []);
+
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
   }, []);
@@ -57,6 +67,7 @@ export function useAuth() {
     accessToken: session?.access_token ?? null,
     signUp,
     signIn,
+    signInWithGoogle,
     signOut,
   };
 }
