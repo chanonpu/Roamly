@@ -54,6 +54,12 @@ class SupabaseStore {
     const row = profilePatchToRow(patch);
     const { data, error } = await supabaseAdmin.from('profiles').update(row).eq('id', id).select('*').maybeSingle();
     if (error) throw error;
+    // Plans store a copy of the creator's avatar; keep the user's own plans current.
+    if (data && patch.avatar !== undefined) {
+      const { error: planError } = await supabaseAdmin
+        .from('travel_plans').update({ creator_avatar: patch.avatar }).eq('creator_id', id);
+      if (planError) throw planError;
+    }
     return data ? rowToProfile(data) : undefined;
   }
 

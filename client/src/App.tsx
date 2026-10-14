@@ -18,6 +18,7 @@ import { ResetPasswordModal } from './components/ResetPasswordModal';
 import { api, setAccessToken } from './lib/api';
 import { track } from './lib/analytics';
 import { useAuth } from './hooks/useAuth';
+import { uploadAvatar } from './lib/avatar';
 import {
   Destination, TravelItinerary, UserProfile, Currency,
   GenerateTripRequest, TravelWarning, PackingItem,
@@ -260,6 +261,20 @@ export default function App() {
     }
   }, [auth.isSignedIn]);
 
+  // Errors propagate to UserProfileView, which shows them next to the avatar.
+  const handleUploadAvatar = useCallback(async (file: File) => {
+    if (!auth.user) return;
+    const url = await uploadAvatar(auth.user.id, file);
+    const saved = await api.updateCurrentUser({ avatar: url });
+    setCurrentUser(saved);
+    // The server also rewrites creator_avatar on this user's plans; mirror that locally.
+    const withNewAvatar = (list: TravelItinerary[]) =>
+      list.map(it => (it.creatorId === saved.id ? { ...it, creatorAvatar: saved.avatar } : it));
+    setItineraries(withNewAvatar);
+    setMyItineraries(withNewAvatar);
+    setSavedItineraries(withNewAvatar);
+  }, [auth.user]);
+
   const handleSignOut = useCallback(async () => {
     await auth.signOut();
     setActiveTabState('discover');
@@ -375,6 +390,7 @@ export default function App() {
                   currency={selectedCurrency}
                   onSelectItinerary={selectItinerary}
                   onUpdateVisitedCountries={handleUpdateVisitedCountries}
+                  onUploadAvatar={handleUploadAvatar}
                 />
               ) : (
                 <div className="max-w-md mx-auto py-24 px-4 text-center space-y-4">

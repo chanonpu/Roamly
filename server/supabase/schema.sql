@@ -1,7 +1,7 @@
 -- Roamly — Supabase schema (hybrid JSONB design)
 --
 -- Run this in the Supabase SQL editor (Project > SQL Editor > New query) on a
--- fresh project, then run seed.sql. This intentionally keeps `days`,
+-- fresh project, then run seed.sql and avatars.sql (profile picture storage). This intentionally keeps `days`,
 -- `packing_list`, and `comments` as JSONB columns on `travel_plans` rather
 -- than fully normalizing into separate tables — it maps almost 1:1 onto the
 -- TravelItinerary shape the frontend already expects, which keeps the

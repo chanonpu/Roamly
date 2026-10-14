@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { 
-  Award, Layers, Globe, CheckCircle2 
+  Award, Layers, Globe, CheckCircle2, Camera, Loader2
 } from 'lucide-react';
 import { UserProfile, TravelItinerary, Currency } from '../types/travel';
 import { CURRENT_USER } from '../data/mockData';
 import { LazyCountryTrackerMap } from './LazyCountryTrackerMap';
+import { avatarSrc } from '../lib/avatar';
 
 interface UserProfileViewProps {
   user: UserProfile;
@@ -13,6 +14,7 @@ interface UserProfileViewProps {
   currency: Currency;
   onSelectItinerary: (it: TravelItinerary) => void;
   onUpdateVisitedCountries: (countries: string[]) => void;
+  onUploadAvatar: (file: File) => Promise<void>;
 }
 
 const ALL_POPULAR_COUNTRIES = [
@@ -26,11 +28,30 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
   myItineraries,
   currency,
   onSelectItinerary,
-  onUpdateVisitedCountries
+  onUpdateVisitedCountries,
+  onUploadAvatar
 }) => {
   const [activeTab, setActiveTab] = useState<'trips' | 'tracker' | 'achievements'>('trips');
   const [visited, setVisited] = useState<string[]>(user.visitedCountries || []);
   const [newCountryInput, setNewCountryInput] = useState<string>('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [avatarError, setAvatarError] = useState('');
+
+  const handleAvatarFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // allow re-picking the same file
+    if (!file) return;
+    setIsUploadingAvatar(true);
+    setAvatarError('');
+    try {
+      await onUploadAvatar(file);
+    } catch (err) {
+      setAvatarError(err instanceof Error ? err.message : 'Upload failed.');
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
 
   const toggleVisitedCountry = (country: string) => {
     let next: string[];
@@ -61,12 +82,38 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
       <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-xl space-y-6">
         
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
-          <img
-            src={user.avatar}
-            alt={user.name}
-            className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover ring-4 ring-sky-700/30 shadow-lg"
-            referrerPolicy="no-referrer"
-          />
+          <div className="flex flex-col items-center gap-1.5 shrink-0">
+            <div className="relative">
+              <img
+                src={avatarSrc(user.avatar)}
+                alt={user.name}
+                className={`w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover ring-4 ring-sky-700/30 shadow-lg transition-opacity ${isUploadingAvatar ? 'opacity-50' : ''}`}
+                referrerPolicy="no-referrer"
+              />
+              {isUploadingAvatar && (
+                <Loader2 className="absolute inset-0 m-auto w-7 h-7 animate-spin text-sky-700" />
+              )}
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploadingAvatar}
+                title="Change profile picture"
+                aria-label="Change profile picture"
+                className="absolute bottom-0 right-0 p-2 rounded-full bg-sky-700 hover:bg-sky-800 text-white shadow-md ring-2 ring-white dark:ring-stone-900 transition-colors cursor-pointer disabled:opacity-60"
+              >
+                <Camera className="w-4 h-4" />
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarFile}
+                className="hidden"
+              />
+            </div>
+            {avatarError && (
+              <p className="max-w-[10rem] text-center text-[11px] font-semibold text-rose-600 dark:text-rose-400">{avatarError}</p>
+            )}
+          </div>
 
           <div className="space-y-2 flex-1">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">

@@ -6,6 +6,7 @@ import {
 import { TravelItinerary, TravelCategory, Currency } from '../types/travel';
 import { formatCurrency } from '../lib/format';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
+import { avatarSrc } from '../lib/avatar';
 import { track } from '../lib/analytics';
 
 interface CommunityFeedProps {
@@ -78,7 +79,7 @@ const ItineraryCard = React.memo(function ItineraryCard({
 
         <div className="pt-3 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
-            <img src={it.creatorAvatar} alt={it.creatorName} className="w-6 h-6 rounded-full object-cover" referrerPolicy="no-referrer" />
+            <img src={avatarSrc(it.creatorAvatar)} alt={it.creatorName} className="w-6 h-6 rounded-full object-cover" referrerPolicy="no-referrer" />
             <span className="font-semibold text-stone-700 dark:text-stone-300">{it.creatorName}</span>
           </div>
           <div className="flex items-center gap-3 text-stone-400 font-medium">

@@ -10,6 +10,7 @@ import { LazyInteractiveMap as InteractiveMap } from './LazyInteractiveMap';
 import { api } from '../lib/api';
 import { formatCurrency } from '../lib/format';
 import { safeUrl } from '../lib/sanitize';
+import { avatarSrc } from '../lib/avatar';
 
 interface ItineraryViewProps {
   itinerary: TravelItinerary;
@@ -358,7 +359,7 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({
         <div className="absolute bottom-6 left-6 right-6 space-y-3">
           <div className="flex items-center gap-3">
             <img
-              src={itinerary.creatorAvatar}
+              src={avatarSrc(itinerary.creatorAvatar)}
               alt={itinerary.creatorName}
               className="w-9 h-9 rounded-full object-cover ring-2 ring-sky-400"
               referrerPolicy="no-referrer"
@@ -718,7 +719,7 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({
             <div key={c.id} className="p-3.5 rounded-xl bg-stone-50/80 dark:bg-stone-800/40 border border-stone-200/60 dark:border-stone-800/60 space-y-1.5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <img src={c.userAvatar} alt={c.userName} className="w-6 h-6 rounded-full object-cover" referrerPolicy="no-referrer" />
+                  <img src={avatarSrc(c.userAvatar)} alt={c.userName} className="w-6 h-6 rounded-full object-cover" referrerPolicy="no-referrer" />
                   <span className="text-xs font-bold text-stone-800 dark:text-stone-200">{c.userName}</span>
                 </div>
                 <div className="flex items-center gap-2">

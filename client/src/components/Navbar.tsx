@@ -3,6 +3,7 @@ import { Compass, MapPin, Sparkles, User, Sun, Moon, Search, BookOpen, Layers, D
 import { Currency } from '../types/travel';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { track } from '../lib/analytics';
+import { avatarSrc } from '../lib/avatar';
 
 interface NavbarProps {
   activeTab: string;
@@ -244,7 +245,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 title={userName}
               >
                 <img
-                  src={userAvatar || 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(userName)}
+                  src={avatarSrc(userAvatar)}
                   alt={userName}
                   className="w-8 h-8 rounded-full object-cover ring-2 ring-sky-600/30 hover:ring-sky-600 transition-all"
                   referrerPolicy="no-referrer"

@@ -68,7 +68,8 @@ section.
 **1. Set up Supabase** (one-time, ~5 minutes)
 
 Create a free project at [supabase.com](https://supabase.com), then in the SQL Editor run, in
-order: `roamly-backend/supabase/schema.sql`, then `roamly-backend/supabase/seed.sql`. Grab your
+order: `roamly-backend/supabase/schema.sql`, `roamly-backend/supabase/seed.sql`, then
+`roamly-backend/supabase/avatars.sql` (profile picture storage). Grab your
 Project URL, **Publishable** key, and **Secret** key from Project Settings → API.
 
 **2. Backend**
