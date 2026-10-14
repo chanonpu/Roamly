@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, AlertTriangle, LogIn, Compass } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, LogIn, Compass, Sparkles, Loader2 } from 'lucide-react';
 
 import { Navbar } from './components/Navbar';
 import { DiscoverView } from './components/DiscoverView';
@@ -62,6 +62,9 @@ export default function App() {
   const [wizardPreselectedDestination, setWizardPreselectedDestination] = useState('');
   const [communityInitialSearch, setCommunityInitialSearch] = useState<string | undefined>(undefined);
   const [isGenerating, setIsGenerating] = useState(false);
+  // A generated plan the user hasn't approved yet — not in the DB until saved.
+  const [draftItinerary, setDraftItinerary] = useState<TravelItinerary | null>(null);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [actionError, setActionError] = useState('');
 
   // ---- Keep the API client's Authorization header in sync with the
@@ -136,7 +139,10 @@ export default function App() {
     [destinations]
   );
 
-  const isOwnerOfSelected = !!currentUser && !!selectedItinerary && selectedItinerary.creatorId === currentUser.id;
+  const isDraftSelected = !!draftItinerary && selectedItinerary?.id === draftItinerary.id;
+  // Drafts have no server row yet, so owner edits (which call the API by id) wait until saved.
+  const isOwnerOfSelected = !!currentUser && !!selectedItinerary && !isDraftSelected
+    && selectedItinerary.creatorId === currentUser.id;
 
   // ---- Navigation handlers (tracked for the future dashboard) ----
   const setActiveTab = useCallback((tab: string) => {
@@ -207,14 +213,47 @@ export default function App() {
     setActionError('');
     try {
       const { itinerary } = await api.generateItinerary(req);
-      syncItinerary(itinerary);
-      selectItinerary(itinerary);
+      setDraftItinerary(itinerary);
+      setSelectedItineraryState(itinerary);
     } catch (err) {
       setActionError("Couldn't generate a trip — check that the backend is running, then try again.");
     } finally {
       setIsGenerating(false);
     }
-  }, [auth.isSignedIn, requireAuth, syncItinerary, selectItinerary]);
+  }, [auth.isSignedIn, requireAuth]);
+
+  const handleSaveDraft = useCallback(async () => {
+    if (!draftItinerary) return;
+    setIsSavingDraft(true);
+    setActionError('');
+    try {
+      const saved = await api.createItinerary(draftItinerary);
+      setDraftItinerary(null);
+      syncItinerary(saved);
+      selectItinerary(saved);
+    } catch (err) {
+      setActionError("Couldn't save this plan — check that the backend is running, then try again.");
+    } finally {
+      setIsSavingDraft(false);
+    }
+  }, [draftItinerary, syncItinerary, selectItinerary]);
+
+  const handleDiscardDraft = useCallback(() => {
+    setDraftItinerary(null);
+    selectItinerary(null);
+  }, [selectItinerary]);
+
+  const handleDeleteItinerary = useCallback(async (it: TravelItinerary) => {
+    try {
+      await api.deleteItinerary(it.id);
+      setItineraries(prev => prev.filter(x => x.id !== it.id));
+      setMyItineraries(prev => prev.filter(x => x.id !== it.id));
+      setSavedItineraries(prev => prev.filter(x => x.id !== it.id));
+      selectItinerary(null);
+    } catch (err) {
+      setActionError("Couldn't delete this itinerary — check that the backend is running.");
+    }
+  }, [selectItinerary]);
 
   const handleForkItinerary = useCallback(async (it: TravelItinerary) => {
     if (!auth.isSignedIn) { requireAuth(); return; }
@@ -347,6 +386,33 @@ export default function App() {
               >
                 <ArrowLeft className="w-3.5 h-3.5" /> Back to {activeTab === 'plan' ? 'Trip Planner' : activeTab === 'profile' ? 'My Profile' : activeTab === 'community' ? 'Community' : 'Discover'}
               </button>
+
+              {isDraftSelected && (
+                <div className="mt-4 p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-amber-800 dark:text-amber-300">
+                    <Sparkles className="w-4 h-4 shrink-0" />
+                    Review your plan — it isn't saved until you approve it.
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      id="discard-draft-btn"
+                      onClick={handleDiscardDraft}
+                      disabled={isSavingDraft}
+                      className="px-3.5 py-2 rounded-xl text-xs font-bold bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700 hover:bg-stone-100 transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      Discard
+                    </button>
+                    <button
+                      id="save-draft-btn"
+                      onClick={handleSaveDraft}
+                      disabled={isSavingDraft}
+                      className="px-3.5 py-2 rounded-xl text-xs font-bold bg-sky-700 hover:bg-sky-800 text-white shadow-md shadow-sky-700/20 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                    >
+                      {isSavingDraft && <Loader2 className="w-3.5 h-3.5 animate-spin" />} Save plan
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
             <ItineraryView
               itinerary={selectedItinerary}
@@ -358,6 +424,8 @@ export default function App() {
               isSignedIn={auth.isSignedIn}
               isOwner={isOwnerOfSelected}
               onRequireAuth={requireAuth}
+              onDeleteItinerary={handleDeleteItinerary}
+              isDraft={isDraftSelected}
             />
           </div>
         ) : (

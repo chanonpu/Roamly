@@ -30,6 +30,11 @@ interface ItineraryViewProps {
   /** Called when a signed-out visitor tries to do something that needs an
    *  account (like, bookmark, comment) — opens the sign-in modal. */
   onRequireAuth: () => void;
+  /** Owner-only. This view asks for confirmation before calling it. */
+  onDeleteItinerary: (itinerary: TravelItinerary) => void;
+  /** A freshly generated plan that isn't saved yet: it has no server id,
+   *  so every control that calls the API by id is hidden. */
+  isDraft?: boolean;
 }
 
 // Extracted + memoized: the activity list can get long, and none of these
@@ -114,7 +119,9 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({
   onDuplicateItinerary,
   isSignedIn,
   isOwner,
-  onRequireAuth
+  onRequireAuth,
+  onDeleteItinerary,
+  isDraft = false
 }) => {
   const [activeView, setActiveView] = useState<'timeline' | 'map'>('timeline');
   const [selectedDayIndex, setSelectedDayIndex] = useState<number>(0);
@@ -325,7 +332,7 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          {!isDraft && <div className="flex items-center gap-2">
             <button
               id="like-btn"
               onClick={() => {
@@ -353,7 +360,7 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({
             >
               <Bookmark className="w-4 h-4 fill-current" />
             </button>
-          </div>
+          </div>}
         </div>
 
         <div className="absolute bottom-6 left-6 right-6 space-y-3">
@@ -460,6 +467,10 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({
                 <CheckSquare className="w-3.5 h-3.5 text-emerald-600" /> Packing Checklist ({itinerary.packingList.filter(p => p.packed).length}/{itinerary.packingList.length})
               </button>
             </>
+          ) : isDraft ? (
+            <span className="text-xs text-stone-400 font-medium italic">
+              Save this plan to start editing it
+            </span>
           ) : (
             <span className="text-xs text-stone-400 font-medium italic">
               Viewing {itinerary.creatorName}'s itinerary — fork it to edit your own copy
@@ -468,22 +479,26 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            id="fork-itinerary-btn"
-            onClick={() => onForkItinerary(itinerary)}
-            className="px-3.5 py-2 rounded-xl text-xs font-bold bg-sky-700 hover:bg-sky-800 text-white shadow-md shadow-sky-700/20 transition-all flex items-center gap-1.5 cursor-pointer"
-          >
-            <GitFork className="w-3.5 h-3.5" /> Fork / Customize
-          </button>
+          {!isDraft && (
+            <>
+              <button
+                id="fork-itinerary-btn"
+                onClick={() => onForkItinerary(itinerary)}
+                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-sky-700 hover:bg-sky-800 text-white shadow-md shadow-sky-700/20 transition-all flex items-center gap-1.5 cursor-pointer"
+              >
+                <GitFork className="w-3.5 h-3.5" /> Fork / Customize
+              </button>
 
-          <button
-            id="duplicate-btn"
-            onClick={() => onDuplicateItinerary(itinerary)}
-            className="p-2 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 transition-colors cursor-pointer"
-            title="Duplicate Itinerary"
-          >
-            <Copy className="w-4 h-4" />
-          </button>
+              <button
+                id="duplicate-btn"
+                onClick={() => onDuplicateItinerary(itinerary)}
+                className="p-2 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 transition-colors cursor-pointer"
+                title="Duplicate Itinerary"
+              >
+                <Copy className="w-4 h-4" />
+              </button>
+            </>
+          )}
 
           <button
             id="share-btn"
@@ -506,6 +521,19 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({
           >
             <Printer className="w-4 h-4" />
           </button>
+
+          {isOwner && (
+            <button
+              id="delete-itinerary-btn"
+              onClick={() => {
+                if (window.confirm("Delete this plan? This can't be undone.")) onDeleteItinerary(itinerary);
+              }}
+              className="p-2 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 hover:bg-rose-100 transition-colors cursor-pointer"
+              title="Delete Itinerary"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
 
@@ -672,7 +700,7 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({
       )}
 
       {/* Community Comments & Ratings Section */}
-      <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-lg space-y-6">
+      {!isDraft && <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-lg space-y-6">
         <div className="flex items-center justify-between">
           <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100 font-serif-heading flex items-center gap-2">
             <MessageSquare className="w-5 h-5 text-sky-700 dark:text-sky-400" /> Traveler Reviews & Discussion ({itinerary.comments.length})
@@ -738,7 +766,7 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({
             </div>
           ))}
         </div>
-      </div>
+      </div>}
     </div>
   );
 };

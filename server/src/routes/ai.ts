@@ -11,8 +11,8 @@ import { Activity } from '../types/travel.js';
 
 export const aiRouter = Router();
 
-// POST /api/generate-itinerary — requires auth: it creates a persisted
-// itinerary owned by whoever calls it, so we need to know who that is.
+// POST /api/generate-itinerary — requires auth: the draft it returns is
+// owned by whoever calls it, so we need to know who that is.
 const generateSchema = z.object({
   destination: z.string().trim().min(1).max(100),
   durationDays: z.number().int().min(1).max(30),
@@ -25,13 +25,14 @@ const generateSchema = z.object({
 aiRouter.post('/generate-itinerary', requireAuth, generateLimiter, asyncHandler(async (req: AuthedRequest, res) => {
   const body = generateSchema.parse(req.body);
   const profile = await store.getUser(req.user!.id);
-  const generated = await generateItinerary(
+  // Returned as an unsaved draft; the client saves it via POST /api/itineraries
+  // once the user approves it.
+  const itinerary = await generateItinerary(
     body as any,
     req.user!.id,
     profile?.name ?? 'Traveler',
     profile?.avatar ?? ''
   );
-  const itinerary = await store.createItinerary(generated);
   await logEvent('generate_itinerary', {
     destination: body.destination, durationDays: body.durationDays, season: body.season,
     preferences: body.preferences, budgetStyle: body.budgetStyle ?? null, companionStyle: body.companionStyle ?? null,

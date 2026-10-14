@@ -3,7 +3,12 @@ import { generateHeuristicItinerary } from './itineraryGenerator.js';
 import { makeId } from '../utils/id.js';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY?.trim();
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+// Tried in order; the second covers the first being overloaded (503) or
+// retired (404). `-latest` aliases track Google's current models.
+const GEMINI_MODELS = [
+  process.env.GEMINI_MODEL || 'gemini-flash-latest',
+  process.env.GEMINI_FALLBACK_MODEL || 'gemini-flash-lite-latest',
+];
 
 let genAiClient: any = null;
 let genAiInitAttempted = false;
@@ -30,36 +35,42 @@ async function generateJson<T>(prompt: string, fallback: () => T): Promise<T> {
   const client = await getGenAiClient();
   if (!client) return fallback();
 
-  try {
-    const response = await client.models.generateContent({
-      model: GEMINI_MODEL,
-      contents: prompt,
-      config: { responseMimeType: 'application/json' },
-    });
-    const text: string = response.text ?? response.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
-    const cleaned = text.replace(/```json|```/g, '').trim();
-    return JSON.parse(cleaned) as T;
-  } catch (err) {
-    console.warn('[ai] Gemini generation failed, falling back to heuristic.', (err as Error).message);
-    return fallback();
+  for (const model of GEMINI_MODELS) {
+    try {
+      const response = await client.models.generateContent({
+        model,
+        contents: prompt,
+        config: { responseMimeType: 'application/json' },
+      });
+      const text: string = response.text ?? response.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+      const cleaned = text.replace(/```json|```/g, '').trim();
+      return JSON.parse(cleaned) as T;
+    } catch (err) {
+      console.warn(`[ai] Gemini generation failed on ${model}.`, (err as Error).message);
+    }
   }
+  console.warn('[ai] All Gemini models failed, falling back to heuristic.');
+  return fallback();
 }
 
 async function generateText(prompt: string, fallback: () => string): Promise<string> {
   const client = await getGenAiClient();
   if (!client) return fallback();
 
-  try {
-    const response = await client.models.generateContent({
-      model: GEMINI_MODEL,
-      contents: prompt,
-    });
-    const text: string = response.text ?? response.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
-    return text.trim() || fallback();
-  } catch (err) {
-    console.warn('[ai] Gemini chat failed, falling back to heuristic.', (err as Error).message);
-    return fallback();
+  for (const model of GEMINI_MODELS) {
+    try {
+      const response = await client.models.generateContent({
+        model,
+        contents: prompt,
+      });
+      const text: string = response.text ?? response.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+      if (text.trim()) return text.trim();
+    } catch (err) {
+      console.warn(`[ai] Gemini chat failed on ${model}.`, (err as Error).message);
+    }
   }
+  console.warn('[ai] All Gemini models failed, falling back to heuristic.');
+  return fallback();
 }
 
 export const isGeminiConfigured = () => Boolean(GEMINI_API_KEY);
