@@ -193,6 +193,8 @@ export default function App() {
     setActiveTab('community');
   }, [setActiveTab]);
 
+  const clearCommunityInitialSearch = useCallback(() => setCommunityInitialSearch(undefined), []);
+
   const handleOpenWizardWithDest = useCallback((cityName: string) => {
     setWizardPreselectedDestination(cityName);
     setActiveTab('plan');
@@ -351,6 +353,7 @@ export default function App() {
                 onForkItinerary={handleForkItinerary}
                 onOpenWizardWithDest={handleOpenWizardWithDest}
                 initialSearch={communityInitialSearch}
+                onInitialSearchConsumed={clearCommunityInitialSearch}
               />
             )}
 

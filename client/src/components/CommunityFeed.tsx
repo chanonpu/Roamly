@@ -17,6 +17,9 @@ interface CommunityFeedProps {
   /** Optional — lets a caller (e.g. "Browse Community Plans" from a
    *  destination's detail modal) land here pre-filtered to that city. */
   initialSearch?: string;
+  /** Called once initialSearch has been applied, so the caller can clear it
+   *  and a later remount of this tab starts with an empty search. */
+  onInitialSearchConsumed?: () => void;
 }
 
 const ItineraryCard = React.memo(function ItineraryCard({
@@ -112,6 +115,7 @@ export const CommunityFeed: React.FC<CommunityFeedProps> = ({
   onSelectItinerary,
   onForkItinerary,
   initialSearch,
+  onInitialSearchConsumed,
 }) => {
   const [searchTerm, setSearchTerm] = useState(initialSearch ?? '');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
@@ -121,8 +125,11 @@ export const CommunityFeed: React.FC<CommunityFeedProps> = ({
   // If the parent hands us a fresh initialSearch (e.g. clicking "Browse
   // Community Plans" for a different destination on a later visit), reflect it.
   useEffect(() => {
-    if (initialSearch) setSearchTerm(initialSearch);
-  }, [initialSearch]);
+    if (initialSearch) {
+      setSearchTerm(initialSearch);
+      onInitialSearchConsumed?.();
+    }
+  }, [initialSearch, onInitialSearchConsumed]);
 
   const sorted = useMemo(() => {
     const q = debouncedSearch.toLowerCase();
