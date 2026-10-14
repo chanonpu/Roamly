@@ -1,11 +1,12 @@
 import React, { useRef, useState } from 'react';
 import { 
-  Award, Layers, Globe, CheckCircle2, Camera, Loader2
+  Award, Layers, Globe, CheckCircle2, Camera, Loader2, Pencil
 } from 'lucide-react';
 import { UserProfile, TravelItinerary, Currency } from '../types/travel';
 import { CURRENT_USER } from '../data/mockData';
 import { LazyCountryTrackerMap } from './LazyCountryTrackerMap';
 import { avatarSrc } from '../lib/avatar';
+import { BIO_MAX, NAME_MAX, validateName } from '../lib/authValidation';
 
 interface UserProfileViewProps {
   user: UserProfile;
@@ -15,6 +16,7 @@ interface UserProfileViewProps {
   onSelectItinerary: (it: TravelItinerary) => void;
   onUpdateVisitedCountries: (countries: string[]) => void;
   onUploadAvatar: (file: File) => Promise<void>;
+  onUpdateProfile: (patch: { name: string; bio: string }) => Promise<void>;
 }
 
 const ALL_POPULAR_COUNTRIES = [
@@ -23,13 +25,16 @@ const ALL_POPULAR_COUNTRIES = [
   'Egypt', 'United Kingdom', 'Brazil', 'Mexico', 'Greece', 'South Korea', 'Singapore'
 ];
 
+const INPUT_CLASS = 'w-full px-3 py-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-sky-500/40';
+
 export const UserProfileView: React.FC<UserProfileViewProps> = ({
   user = CURRENT_USER,
   myItineraries,
   currency,
   onSelectItinerary,
   onUpdateVisitedCountries,
-  onUploadAvatar
+  onUploadAvatar,
+  onUpdateProfile
 }) => {
   const [activeTab, setActiveTab] = useState<'trips' | 'tracker' | 'achievements'>('trips');
   const [visited, setVisited] = useState<string[]>(user.visitedCountries || []);
@@ -37,6 +42,34 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [avatarError, setAvatarError] = useState('');
+
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [draftName, setDraftName] = useState('');
+  const [draftBio, setDraftBio] = useState('');
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [profileError, setProfileError] = useState('');
+
+  const startEditingProfile = () => {
+    setDraftName(user.name);
+    setDraftBio(user.bio ?? '');
+    setProfileError('');
+    setIsEditingProfile(true);
+  };
+
+  const handleSaveProfile = async () => {
+    const nameError = validateName(draftName);
+    if (nameError) { setProfileError(nameError); return; }
+    setIsSavingProfile(true);
+    setProfileError('');
+    try {
+      await onUpdateProfile({ name: draftName.trim(), bio: draftBio.trim() });
+      setIsEditingProfile(false);
+    } catch (err) {
+      setProfileError(err instanceof Error ? err.message : "Couldn't save your profile.");
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
 
   const handleAvatarFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -117,10 +150,22 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
 
           <div className="space-y-2 flex-1">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-black text-stone-900 dark:text-stone-100 font-serif-heading">
-                  {user.name}
-                </h1>
+              <div className="flex-1 min-w-0">
+                {isEditingProfile ? (
+                  <input
+                    type="text"
+                    value={draftName}
+                    onChange={e => setDraftName(e.target.value)}
+                    maxLength={NAME_MAX}
+                    placeholder="Your name"
+                    aria-label="Name"
+                    className={`${INPUT_CLASS} text-lg font-bold max-w-sm`}
+                  />
+                ) : (
+                  <h1 className="text-2xl sm:text-3xl font-black text-stone-900 dark:text-stone-100 font-serif-heading">
+                    {user.name}
+                  </h1>
+                )}
                 <p className="text-xs font-semibold text-sky-700 dark:text-sky-400">
                   @{user.username}
                 </p>
@@ -133,12 +178,54 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                 <div className="px-3 py-1.5 rounded-xl bg-stone-100 dark:bg-stone-800">
                   <span className="text-sky-700 dark:text-sky-400">{user.followingCount}</span> Following
                 </div>
+                {!isEditingProfile && (
+                  <button
+                    onClick={startEditingProfile}
+                    className="px-3 py-1.5 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 flex items-center gap-1.5 cursor-pointer transition-colors"
+                  >
+                    <Pencil className="w-3.5 h-3.5" /> Edit Profile
+                  </button>
+                )}
               </div>
             </div>
 
-            <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-relaxed max-w-2xl">
-              {user.bio}
-            </p>
+            {isEditingProfile ? (
+              <div className="space-y-2 max-w-2xl">
+                <textarea
+                  value={draftBio}
+                  onChange={e => setDraftBio(e.target.value)}
+                  maxLength={BIO_MAX}
+                  rows={3}
+                  placeholder="Tell other travelers about yourself"
+                  aria-label="Bio"
+                  className={`${INPUT_CLASS} text-xs sm:text-sm resize-none`}
+                />
+                <div className="flex items-center gap-2 text-xs">
+                  <button
+                    onClick={handleSaveProfile}
+                    disabled={isSavingProfile}
+                    className="px-4 py-2 rounded-xl font-bold bg-sky-700 hover:bg-sky-800 text-white shadow-md shadow-sky-700/20 flex items-center gap-1.5 cursor-pointer disabled:opacity-60"
+                  >
+                    {isSavingProfile && <Loader2 className="w-3.5 h-3.5 animate-spin" />} Save
+                  </button>
+                  <button
+                    onClick={() => setIsEditingProfile(false)}
+                    disabled={isSavingProfile}
+                    className="px-4 py-2 rounded-xl font-bold bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 cursor-pointer disabled:opacity-60"
+                  >
+                    Cancel
+                  </button>
+                  <span className="ml-auto text-stone-400">{draftBio.length}/{BIO_MAX}</span>
+                </div>
+                {profileError && (
+                  <p className="text-xs font-semibold text-rose-600 dark:text-rose-400">{profileError}</p>
+                )}
+              </div>
+            ) : (
+              <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-relaxed max-w-2xl">
+                {user.bio || <span className="italic text-stone-400">No bio yet.</span>}
+              </p>
+            )}
 
             {/* Quick Country Stats pill */}
             <div className="pt-2 flex flex-wrap items-center justify-center sm:justify-start gap-2 text-xs">

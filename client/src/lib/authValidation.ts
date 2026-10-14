@@ -5,6 +5,7 @@
 export const PASSWORD_MIN = 8;
 export const PASSWORD_MAX = 72;
 export const NAME_MAX = 60; // matches the server's updateUserSchema
+export const BIO_MAX = 500; // matches the server's updateUserSchema
 
 export function validatePassword(password: string, confirm: string): string | null {
   if (password.length < PASSWORD_MIN) return `Password must be at least ${PASSWORD_MIN} characters.`;

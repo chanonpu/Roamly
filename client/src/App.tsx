@@ -275,6 +275,18 @@ export default function App() {
     setSavedItineraries(withNewAvatar);
   }, [auth.user]);
 
+  // Errors propagate to UserProfileView, which shows them under the form.
+  const handleUpdateProfile = useCallback(async (patch: { name: string; bio: string }) => {
+    const saved = await api.updateCurrentUser(patch);
+    setCurrentUser(saved);
+    // The server also rewrites creator_name on this user's plans; mirror that locally.
+    const withNewName = (list: TravelItinerary[]) =>
+      list.map(it => (it.creatorId === saved.id ? { ...it, creatorName: saved.name } : it));
+    setItineraries(withNewName);
+    setMyItineraries(withNewName);
+    setSavedItineraries(withNewName);
+  }, []);
+
   const handleSignOut = useCallback(async () => {
     await auth.signOut();
     setActiveTabState('discover');
@@ -391,6 +403,7 @@ export default function App() {
                   onSelectItinerary={selectItinerary}
                   onUpdateVisitedCountries={handleUpdateVisitedCountries}
                   onUploadAvatar={handleUploadAvatar}
+                  onUpdateProfile={handleUpdateProfile}
                 />
               ) : (
                 <div className="max-w-md mx-auto py-24 px-4 text-center space-y-4">
