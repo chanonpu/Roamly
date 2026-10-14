@@ -104,7 +104,7 @@ export async function generateItinerary(
   "days": [{ "title": string, "activities": [{ "title": string, "category": string, "location": string, "description": string, "estimatedDuration": string, "estimatedCost": number, "timeOfDay": "Morning"|"Afternoon"|"Evening" }] }]
 }
 Trip request: destination="${req.destination}", durationDays=${req.durationDays}, season="${req.season}", preferences=${JSON.stringify(req.preferences)}, companionStyle="${req.companionStyle ?? 'Solo'}", budgetStyle="${req.budgetStyle ?? 'Moderate'}".
-Produce exactly ${req.durationDays} days, each with exactly 3 activities (one per time of day). Keep descriptions to one sentence.${whimsical ? `
+Produce exactly ${req.durationDays} days, each with exactly 3 activities (one per time of day). Day titles must not include the day number (e.g. "Temples & Street Food", not "Day 1: Temples & Street Food"). Keep descriptions to one sentence.${whimsical ? `
 This is a fictional or practically impossible destination. Write a playful, tongue-in-cheek itinerary with inventive activities and witty one-sentence descriptions, while keeping the exact JSON shape, realistic-sounding durations, and non-negative costs.` : ''}`;
 
   type GeminiItineraryShape = {
@@ -128,7 +128,8 @@ This is a fictional or practically impossible destination. Write a playful, tong
       weatherForecast: raw.weatherForecast ?? base.weatherForecast,
       days: raw.days.map((d, i) => ({
         dayNumber: i + 1,
-        title: d.title,
+        // The UI already prefixes "Day N:", so drop the one Gemini tends to add.
+        title: (d.title ?? '').replace(/^\s*day\s*\d+\s*[:.\-–—]?\s*/i, '') || base.days[i]?.title || '',
         activities: (d.activities ?? []).map((a, j) => ({
           ...a,
           id: makeId('act'),
