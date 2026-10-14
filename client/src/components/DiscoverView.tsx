@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { MapPin, DollarSign, ArrowRight, Compass } from 'lucide-react';
+import { MapPin, DollarSign, Compass } from 'lucide-react';
 import { Destination, Currency } from '../types/travel';
 import { LazyInteractiveMap as InteractiveMap } from './LazyInteractiveMap';
 import { formatCurrency } from '../lib/format';
@@ -20,7 +20,13 @@ const DestinationCard = React.memo(function DestinationCard({
   destination, currency, onSelect,
 }: { destination: Destination; currency: Currency; onSelect: (d: Destination) => void }) {
   return (
-    <div className="group editorial-card rounded-3xl overflow-hidden cursor-pointer flex flex-col hover:shadow-xl transition-all duration-300">
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => onSelect(destination)}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(destination); } }}
+      className="group editorial-card rounded-3xl overflow-hidden cursor-pointer flex flex-col hover:shadow-xl transition-all duration-300"
+    >
       <div className="relative h-44 w-full overflow-hidden">
         <img
           src={destination.image}
@@ -50,16 +56,10 @@ const DestinationCard = React.memo(function DestinationCard({
           </p>
         </div>
 
-        <div className="flex items-center justify-between pt-1 text-xs">
+        <div className="flex items-center pt-1 text-xs">
           <span className="flex items-center gap-1 font-bold text-emerald-700 dark:text-emerald-400">
             <DollarSign className="w-3.5 h-3.5" /> {formatCurrency(destination.avgDailyCostUSD, currency)}/day
           </span>
-          <button
-            onClick={() => onSelect(destination)}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-xl font-bold bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-400 hover:bg-sky-100 transition-colors cursor-pointer"
-          >
-            Details <ArrowRight className="w-3 h-3" />
-          </button>
         </div>
       </div>
     </div>
