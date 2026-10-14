@@ -27,7 +27,8 @@ export const TripPlannerWizard: React.FC<TripPlannerWizardProps> = ({
   isGenerating,
   preselectedDestination = ''
 }) => {
-  const [destination, setDestination] = useState(preselectedDestination || 'Tokyo, Japan');
+  const [destination, setDestination] = useState(preselectedDestination);
+  const [destinationError, setDestinationError] = useState('');
   const [durationDays, setDurationDays] = useState<number>(5);
   const [season, setSeason] = useState<TravelSeason>('Spring');
   const [companionStyle, setCompanionStyle] = useState<CompanionStyle>('Solo');
@@ -43,8 +44,13 @@ export const TripPlannerWizard: React.FC<TripPlannerWizardProps> = ({
   };
 
   const handleGenerate = () => {
+    if (!destination.trim()) {
+      setDestinationError('Please enter where you want to go.');
+      document.getElementById('wizard-destination-input')?.focus();
+      return;
+    }
     onGenerateTrip({
-      destination: destination.trim() || 'Tokyo, Japan',
+      destination: destination.trim(),
       durationDays,
       season,
       preferences: selectedPreferences,
@@ -83,11 +89,14 @@ export const TripPlannerWizard: React.FC<TripPlannerWizardProps> = ({
               type="text"
               id="wizard-destination-input"
               value={destination}
-              onChange={(e) => setDestination(e.target.value)}
+              onChange={(e) => { setDestination(e.target.value); setDestinationError(''); }}
               placeholder="e.g. Kyoto, Paris, Iceland, Sydney..."
               className="w-full pl-10 pr-4 py-3 rounded-2xl bg-stone-50 dark:bg-stone-800/80 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sky-600/40"
             />
           </div>
+          {destinationError && (
+            <p className="text-xs font-semibold text-rose-600 dark:text-rose-400">{destinationError}</p>
+          )}
 
           {/* Quick Destination Pills */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs text-stone-500">
@@ -95,7 +104,7 @@ export const TripPlannerWizard: React.FC<TripPlannerWizardProps> = ({
             {DESTINATIONS.slice(0, 5).map(d => (
               <button
                 key={d.id}
-                onClick={() => setDestination(`${d.city}, ${d.country}`)}
+                onClick={() => { setDestination(`${d.city}, ${d.country}`); setDestinationError(''); }}
                 className="shrink-0 px-2.5 py-1 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-sky-50 dark:hover:bg-sky-950/60 text-stone-700 dark:text-stone-300 font-medium transition-colors flex items-center gap-1 cursor-pointer"
               >
                 <span>{d.flag}</span> {d.city}
