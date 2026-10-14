@@ -13,6 +13,8 @@ export function useAuth() {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  // True after the user lands back from a password-reset email link.
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -21,7 +23,8 @@ export function useAuth() {
       setLoading(false);
     });
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, newSession) => {
+      if (event === 'PASSWORD_RECOVERY') setIsPasswordRecovery(true);
       setSession(newSession);
       setUser(newSession?.user ?? null);
       setLoading(false);
@@ -55,6 +58,23 @@ export function useAuth() {
     return { error: error?.message ?? null };
   }, []);
 
+  // Supabase emails a link back to this origin; following it fires
+  // PASSWORD_RECOVERY above with a temporary session.
+  const requestPasswordReset = useCallback(async (email: string): Promise<AuthResult> => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin,
+    });
+    return { error: error?.message ?? null };
+  }, []);
+
+  const updatePassword = useCallback(async (password: string): Promise<AuthResult> => {
+    const { error } = await supabase.auth.updateUser({ password });
+    if (!error) setIsPasswordRecovery(false);
+    return { error: error?.message ?? null };
+  }, []);
+
+  const dismissPasswordRecovery = useCallback(() => setIsPasswordRecovery(false), []);
+
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
   }, []);
@@ -69,5 +89,9 @@ export function useAuth() {
     signIn,
     signInWithGoogle,
     signOut,
+    isPasswordRecovery,
+    requestPasswordReset,
+    updatePassword,
+    dismissPasswordRecovery,
   };
 }

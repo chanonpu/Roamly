@@ -93,6 +93,20 @@ Open `http://localhost:5173`. Browsing works immediately; sign up to unlock gene
 forking, liking, and your profile. Each project's own README has the full detail — env var
 reference, endpoint list, deployment steps, and the design decisions behind them.
 
+**4. Auth emails (password reset / sign-up confirmation)**
+
+Supabase's built-in sender only delivers to your own team's addresses, so real users need custom
+SMTP. Without a domain, a Gmail account works (~500 emails/day):
+
+1. On the Gmail account, enable 2-Step Verification, then create an App Password
+   (Google Account → Security → App passwords).
+2. Supabase → Authentication → Emails → SMTP Settings → enable custom SMTP: host `smtp.gmail.com`,
+   port `465`, username = the Gmail address, password = the App Password, sender email = the same
+   Gmail address, sender name `Roamly`.
+3. Supabase → Authentication → URL Configuration: set Site URL to the production frontend and add
+   `http://localhost:5173` plus the production URL under Redirect URLs (reset links only redirect
+   to allow-listed URLs).
+
 ## Environment variables at a glance
 
 | Variable | Where | Notes |

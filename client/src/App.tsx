@@ -13,6 +13,7 @@ import { AiTravelAssistant } from './components/AiTravelAssistant';
 import { TravelWarningDialog } from './components/TravelWarningDialog';
 import { DocumentationModal } from './components/DocumentationModal';
 import { AuthModal } from './components/AuthModal';
+import { ResetPasswordModal } from './components/ResetPasswordModal';
 
 import { api, setAccessToken } from './lib/api';
 import { track } from './lib/analytics';
@@ -431,6 +432,13 @@ export default function App() {
         onSignIn={auth.signIn}
         onSignUp={auth.signUp}
         onSignInWithGoogle={auth.signInWithGoogle}
+        onRequestPasswordReset={auth.requestPasswordReset}
+      />
+
+      <ResetPasswordModal
+        isOpen={auth.isPasswordRecovery}
+        onClose={auth.dismissPasswordRecovery}
+        onUpdatePassword={auth.updatePassword}
       />
     </div>
   );
