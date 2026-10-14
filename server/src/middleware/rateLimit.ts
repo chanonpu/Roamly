@@ -1,4 +1,5 @@
-import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
+// Named import: Vercel's builder mis-types this package's default import (see app.ts).
+import { rateLimit, ipKeyGenerator } from 'express-rate-limit';
 import { AuthedRequest } from './auth.js';
 
 /**
