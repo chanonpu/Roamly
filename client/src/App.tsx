@@ -335,6 +335,32 @@ export default function App() {
   const handleOpenDocs = useCallback(() => setIsDocsOpen(true), []);
   const handleOpenAiChat = useCallback(() => setIsAiChatOpen(true), []);
 
+  // Shown above and below an unsaved generated plan.
+  const draftReviewBar = (
+    <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 flex flex-wrap items-center justify-between gap-3">
+      <div className="flex items-center gap-2 text-xs font-semibold text-amber-800 dark:text-amber-300">
+        <Sparkles className="w-4 h-4 shrink-0" />
+        Review your plan — it isn't saved until you approve it.
+      </div>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={handleDiscardDraft}
+          disabled={isSavingDraft}
+          className="px-3.5 py-2 rounded-xl text-xs font-bold bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700 hover:bg-stone-100 transition-colors cursor-pointer disabled:opacity-50"
+        >
+          Discard
+        </button>
+        <button
+          onClick={handleSaveDraft}
+          disabled={isSavingDraft}
+          className="px-3.5 py-2 rounded-xl text-xs font-bold bg-sky-700 hover:bg-sky-800 text-white shadow-md shadow-sky-700/20 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+        >
+          {isSavingDraft && <Loader2 className="w-3.5 h-3.5 animate-spin" />} Save plan
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 transition-colors">
       <Navbar
@@ -387,32 +413,7 @@ export default function App() {
                 <ArrowLeft className="w-3.5 h-3.5" /> Back to {activeTab === 'plan' ? 'Trip Planner' : activeTab === 'profile' ? 'My Profile' : activeTab === 'community' ? 'Community' : 'Discover'}
               </button>
 
-              {isDraftSelected && (
-                <div className="mt-4 p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-2 text-xs font-semibold text-amber-800 dark:text-amber-300">
-                    <Sparkles className="w-4 h-4 shrink-0" />
-                    Review your plan — it isn't saved until you approve it.
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      id="discard-draft-btn"
-                      onClick={handleDiscardDraft}
-                      disabled={isSavingDraft}
-                      className="px-3.5 py-2 rounded-xl text-xs font-bold bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700 hover:bg-stone-100 transition-colors cursor-pointer disabled:opacity-50"
-                    >
-                      Discard
-                    </button>
-                    <button
-                      id="save-draft-btn"
-                      onClick={handleSaveDraft}
-                      disabled={isSavingDraft}
-                      className="px-3.5 py-2 rounded-xl text-xs font-bold bg-sky-700 hover:bg-sky-800 text-white shadow-md shadow-sky-700/20 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-                    >
-                      {isSavingDraft && <Loader2 className="w-3.5 h-3.5 animate-spin" />} Save plan
-                    </button>
-                  </div>
-                </div>
-              )}
+              {isDraftSelected && <div className="mt-4">{draftReviewBar}</div>}
             </div>
             <ItineraryView
               itinerary={selectedItinerary}
@@ -427,6 +428,8 @@ export default function App() {
               onDeleteItinerary={handleDeleteItinerary}
               isDraft={isDraftSelected}
             />
+            {/* Repeated below the plan so it can be approved after reading it through */}
+            {isDraftSelected && <div className="max-w-6xl mx-auto px-4 sm:px-6 pb-8">{draftReviewBar}</div>}
           </div>
         ) : (
           <>
