@@ -64,7 +64,7 @@ export const AiTravelAssistant: React.FC<AiTravelAssistantProps> = ({
   };
 
   return (
-    <div id="ai-chat-drawer" className="fixed bottom-4 right-4 z-50 w-full sm:w-96 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[520px] animate-fade-in">
+    <div id="ai-chat-drawer" className="fixed bottom-4 left-4 right-4 sm:left-auto z-50 sm:w-96 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[520px] max-h-[calc(100dvh-2rem)] animate-fade-in">
 
       <div className="bg-gradient-to-r from-sky-700 to-sky-900 p-4 text-white flex items-center justify-between">
         <div className="flex items-center gap-2.5">

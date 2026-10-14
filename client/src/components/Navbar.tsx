@@ -83,16 +83,16 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Compass className="w-6 h-6 animate-spin-slow" />
           </div>
           <div>
-            <span className="text-2xl font-bold tracking-tight font-serif-heading text-stone-900 dark:text-stone-100">
+            <span className="hidden sm:inline text-2xl font-bold tracking-tight font-serif-heading text-stone-900 dark:text-stone-100">
               Roamly
             </span>
-            <span className="hidden sm:inline-block text-[10px] font-bold uppercase tracking-widest text-sky-700 dark:text-sky-400 ml-2 px-2 py-0.5 rounded-full bg-sky-100/80 dark:bg-sky-950/80 border border-sky-200 dark:border-sky-800">
+            <span className="hidden sm:inline-block lg:hidden xl:inline-block text-[10px] font-bold uppercase tracking-widest text-sky-700 dark:text-sky-400 ml-2 px-2 py-0.5 rounded-full bg-sky-100/80 dark:bg-sky-950/80 border border-sky-200 dark:border-sky-800">
               Editorial Planner
             </span>
           </div>
         </div>
 
-        <div className="relative flex-1 max-w-md hidden md:block" id="nav-search-container">
+        <div className="relative flex-1 max-w-md hidden md:block lg:hidden xl:block" id="nav-search-container">
           <div className="relative">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
             <input
@@ -138,7 +138,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             id="nav-tab-discover"
             onClick={() => setActiveTab('discover')}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
               activeTab === 'discover'
                 ? 'bg-white dark:bg-stone-800 text-sky-700 dark:text-sky-400 shadow-xs border border-stone-200/60 dark:border-stone-700'
                 : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'
@@ -151,7 +151,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             id="nav-tab-community"
             onClick={() => setActiveTab('community')}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
               activeTab === 'community'
                 ? 'bg-white dark:bg-stone-800 text-sky-700 dark:text-sky-400 shadow-xs border border-stone-200/60 dark:border-stone-700'
                 : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'
@@ -164,7 +164,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             id="nav-tab-plan"
             onClick={() => setActiveTab('plan')}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${
               activeTab === 'plan'
                 ? 'bg-sky-700 text-white shadow-sm'
                 : 'text-sky-700 dark:text-sky-400 hover:bg-sky-100/60 dark:hover:bg-sky-950/40'
@@ -177,7 +177,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             id="nav-tab-profile"
             onClick={() => setActiveTab('profile')}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
               activeTab === 'profile'
                 ? 'bg-white dark:bg-stone-800 text-sky-700 dark:text-sky-400 shadow-xs border border-stone-200/60 dark:border-stone-700'
                 : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'
@@ -188,7 +188,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
         </nav>
 
-        <div className="flex items-center gap-2" id="header-actions">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0" id="header-actions">
           <button
             id="ai-assistant-btn"
             onClick={onOpenAiChat}
@@ -221,7 +221,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             id="open-docs-btn"
             onClick={onOpenDocs}
-            className="p-2 rounded-lg text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+            className="hidden sm:inline-flex p-2 rounded-lg text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
             title="System & API Architecture Specs"
           >
             <BookOpen className="w-4 h-4" />
@@ -263,7 +263,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               id="sign-in-btn"
               onClick={onOpenAuth}
-              className="ml-1 px-3.5 py-1.5 rounded-full text-xs font-bold bg-sky-700 hover:bg-sky-800 text-white shadow-sm transition-all cursor-pointer"
+              className="ml-1 px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap bg-sky-700 hover:bg-sky-800 text-white shadow-sm transition-all cursor-pointer"
             >
               Sign In
             </button>

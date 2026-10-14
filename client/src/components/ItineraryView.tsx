@@ -54,7 +54,7 @@ const ActivityCard = React.memo(function ActivityCard({
   return (
     <div className="p-4 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-xs hover:shadow-md transition-shadow space-y-2 relative group">
       <div className="flex items-start justify-between gap-3">
-        <div className="flex items-start gap-3">
+        <div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-3">
           <span className={`mt-0.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
             activity.timeOfDay === 'Morning'
               ? 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300'
@@ -66,18 +66,18 @@ const ActivityCard = React.memo(function ActivityCard({
           </span>
 
           <div>
-            <h4 className="text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2 font-serif-heading">
+            <h4 className="text-base font-bold text-stone-900 dark:text-stone-100 flex flex-wrap items-center gap-2 font-serif-heading">
               {activity.title}
               <span className="text-[11px] font-normal px-2 py-0.5 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 font-sans">
                 {activity.category}
               </span>
             </h4>
-            <div className="text-xs text-stone-500 dark:text-stone-400 flex items-center gap-2 mt-0.5">
+            <div className="text-xs text-stone-500 dark:text-stone-400 flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5">
               <span className="flex items-center gap-1"><MapPin className="w-3 h-3 text-sky-700 dark:text-sky-400" /> {activity.location}</span>
               <span>•</span>
-              <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {activity.estimatedDuration}</span>
+              <span className="flex items-center gap-1 whitespace-nowrap"><Clock className="w-3 h-3" /> {activity.estimatedDuration}</span>
               <span>•</span>
-              <span className="font-semibold text-emerald-700 dark:text-emerald-400">{formatCost(activity.estimatedCost)}</span>
+              <span className="font-semibold whitespace-nowrap text-emerald-700 dark:text-emerald-400">{formatCost(activity.estimatedCost)}</span>
             </div>
           </div>
         </div>
@@ -308,17 +308,17 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({
     <div id="itinerary-view-container" className="max-w-6xl mx-auto py-6 px-4 sm:px-6 space-y-8">
 
       {/* Cover Header Hero Card */}
-      <div className="relative rounded-3xl overflow-hidden border border-stone-200 dark:border-stone-800 shadow-xl bg-stone-100 dark:bg-stone-900 text-white">
+      <div className="relative min-h-80 sm:min-h-96 flex flex-col justify-between gap-6 rounded-3xl overflow-hidden border border-stone-200 dark:border-stone-800 shadow-xl bg-stone-100 dark:bg-stone-900 text-white">
         <img
           src={itinerary.coverImage}
           alt={itinerary.title}
-          className="w-full h-80 sm:h-96 object-cover"
+          className="absolute inset-0 w-full h-full object-cover"
           referrerPolicy="no-referrer"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-stone-950/40 to-black/20" />
 
-        <div className="absolute top-4 left-4 right-4 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
+        <div className="relative mt-4 mx-4 flex items-start justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/90 dark:bg-stone-900/90 text-stone-800 dark:text-stone-100 backdrop-blur-md shadow-md flex items-center gap-1.5">
               <span>{itinerary.flagEmoji}</span> {itinerary.destination}
             </span>
@@ -363,7 +363,7 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({
           </div>}
         </div>
 
-        <div className="absolute bottom-6 left-6 right-6 space-y-3">
+        <div className="relative mb-6 mx-6 space-y-3">
           <div className="flex items-center gap-3">
             <img
               src={avatarSrc(itinerary.creatorAvatar)}
