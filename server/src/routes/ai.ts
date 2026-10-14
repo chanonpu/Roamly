@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import { store } from '../db/store.js';
 import { requireAuth, optionalAuth, AuthedRequest } from '../middleware/auth.js';
+import { aiLimiter, generateLimiter } from '../middleware/rateLimit.js';
 import { optimizeActivityRoute } from '../utils/geo.js';
 import { chatReply, generateItinerary, isGeminiConfigured, suggestHiddenGem } from '../services/ai.js';
 import { logEvent } from '../services/analytics.js';
@@ -13,15 +14,15 @@ export const aiRouter = Router();
 // POST /api/generate-itinerary — requires auth: it creates a persisted
 // itinerary owned by whoever calls it, so we need to know who that is.
 const generateSchema = z.object({
-  destination: z.string().min(1),
+  destination: z.string().trim().min(1).max(100),
   durationDays: z.number().int().min(1).max(30),
   season: z.enum(['Spring', 'Summer', 'Autumn', 'Winter']),
-  preferences: z.array(z.string()).default([]),
+  preferences: z.array(z.string().max(50)).max(20).default([]),
   companionStyle: z.enum(['Solo', 'Couple', 'Family', 'Friends', 'Pet Friendly']).optional(),
   budgetStyle: z.enum(['Budget', 'Moderate', 'Luxury']).optional(),
 });
 
-aiRouter.post('/generate-itinerary', requireAuth, asyncHandler(async (req: AuthedRequest, res) => {
+aiRouter.post('/generate-itinerary', requireAuth, generateLimiter, asyncHandler(async (req: AuthedRequest, res) => {
   const body = generateSchema.parse(req.body);
   const profile = await store.getUser(req.user!.id);
   const generated = await generateItinerary(
@@ -41,10 +42,10 @@ aiRouter.post('/generate-itinerary', requireAuth, asyncHandler(async (req: Authe
 // POST /api/ai-chat — public (optionalAuth), so people can try the
 // concierge before signing up; we still log who asked if they're signed in.
 const chatSchema = z.object({
-  message: z.string().min(1),
-  destinationContext: z.string().optional(),
+  message: z.string().trim().min(1).max(1000),
+  destinationContext: z.string().max(200).optional(),
 });
-aiRouter.post('/ai-chat', optionalAuth, asyncHandler(async (req: AuthedRequest, res) => {
+aiRouter.post('/ai-chat', optionalAuth, aiLimiter, asyncHandler(async (req: AuthedRequest, res) => {
   const body = chatSchema.parse(req.body);
   const reply = await chatReply(body.message, body.destinationContext);
   await logEvent('ai_chat_message', { destinationContext: body.destinationContext ?? null }, req.user?.id ?? null);
@@ -53,10 +54,10 @@ aiRouter.post('/ai-chat', optionalAuth, asyncHandler(async (req: AuthedRequest, 
 
 // POST /api/optimize-route — public, stateless geometry, no AI required.
 const optimizeSchema = z.object({
-  activities: z.array(z.record(z.string(), z.any())),
-  destination: z.string().optional(),
+  activities: z.array(z.record(z.string(), z.any())).max(100),
+  destination: z.string().max(100).optional(),
 });
-aiRouter.post('/optimize-route', optionalAuth, asyncHandler(async (req: AuthedRequest, res) => {
+aiRouter.post('/optimize-route', optionalAuth, aiLimiter, asyncHandler(async (req: AuthedRequest, res) => {
   const body = optimizeSchema.parse(req.body);
   const { ordered, totalKm } = optimizeActivityRoute(body.activities as Activity[]);
   await logEvent('optimize_route', {
@@ -66,8 +67,8 @@ aiRouter.post('/optimize-route', optionalAuth, asyncHandler(async (req: AuthedRe
 }));
 
 // POST /api/suggest-gems — public
-const gemsSchema = z.object({ destination: z.string().min(1) });
-aiRouter.post('/suggest-gems', optionalAuth, asyncHandler(async (req: AuthedRequest, res) => {
+const gemsSchema = z.object({ destination: z.string().trim().min(1).max(100) });
+aiRouter.post('/suggest-gems', optionalAuth, aiLimiter, asyncHandler(async (req: AuthedRequest, res) => {
   const body = gemsSchema.parse(req.body);
   const gem = await suggestHiddenGem(body.destination);
   await logEvent('suggest_gem', { destination: body.destination }, req.user?.id ?? null);

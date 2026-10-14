@@ -21,12 +21,17 @@ export async function requireAuth(req: AuthedRequest, _res: Response, next: Next
     return next(new ApiError(401, 'Sign in required — missing Authorization header.'));
   }
 
-  const { data, error } = await supabaseAdmin.auth.getUser(token);
-  if (error || !data.user) {
-    return next(new ApiError(401, 'Sign in required — your session has expired or is invalid.'));
+  // Async middleware isn't covered by asyncHandler, so a thrown error (e.g.
+  // Supabase unreachable) must be caught here or the request would hang.
+  try {
+    const { data, error } = await supabaseAdmin.auth.getUser(token);
+    if (error || !data.user) {
+      return next(new ApiError(401, 'Sign in required — your session has expired or is invalid.'));
+    }
+    req.user = { id: data.user.id, email: data.user.email ?? null };
+  } catch {
+    return next(new ApiError(401, 'Sign in required — could not verify your session.'));
   }
-
-  req.user = { id: data.user.id, email: data.user.email ?? null };
   next();
 }
 
@@ -40,9 +45,13 @@ export async function optionalAuth(req: AuthedRequest, _res: Response, next: Nex
   const token = header?.startsWith('Bearer ') ? header.slice('Bearer '.length) : null;
   if (!token) return next();
 
-  const { data } = await supabaseAdmin.auth.getUser(token);
-  if (data?.user) {
-    req.user = { id: data.user.id, email: data.user.email ?? null };
+  try {
+    const { data } = await supabaseAdmin.auth.getUser(token);
+    if (data?.user) {
+      req.user = { id: data.user.id, email: data.user.email ?? null };
+    }
+  } catch {
+    /* verification failed — continue as anonymous */
   }
   next();
 }

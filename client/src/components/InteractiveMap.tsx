@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import { Destination, Activity } from '../types/travel';
+import { escapeHtml } from '../lib/sanitize';
 
 interface InteractiveMapProps {
   destinations?: Destination[];
@@ -70,7 +71,7 @@ const InteractiveMapImpl: React.FC<InteractiveMapProps> = ({
 
         const pinHtml = `
           <div class="w-8 h-8 rounded-full bg-white dark:bg-slate-900 shadow-lg border-2 border-sky-500 flex items-center justify-center text-base hover:scale-110 transition-transform cursor-pointer">
-            ${dest.flag}
+            ${escapeHtml(dest.flag)}
           </div>
         `;
 
@@ -87,11 +88,11 @@ const InteractiveMapImpl: React.FC<InteractiveMapProps> = ({
         popupContent.className = 'p-2 max-w-xs text-slate-800 font-sans';
         popupContent.innerHTML = `
           <div class="font-bold text-sm flex items-center gap-1.5 mb-1">
-            <span>${dest.flag}</span> <span>${dest.city}, ${dest.country}</span>
+            <span>${escapeHtml(dest.flag)}</span> <span>${escapeHtml(dest.city)}, ${escapeHtml(dest.country)}</span>
           </div>
-          <p class="text-xs text-slate-600 line-clamp-2 mb-2">${dest.description}</p>
-          <div class="text-[11px] font-semibold text-sky-600 mb-2">Avg daily: $${dest.avgDailyCostUSD} / day</div>
-          <button id="pop-plan-${dest.id}" class="w-full py-1 bg-sky-500 hover:bg-sky-600 text-white rounded text-xs font-bold transition-colors cursor-pointer">
+          <p class="text-xs text-slate-600 line-clamp-2 mb-2">${escapeHtml(dest.description)}</p>
+          <div class="text-[11px] font-semibold text-sky-600 mb-2">Avg daily: $${Number(dest.avgDailyCostUSD)} / day</div>
+          <button id="pop-plan-${escapeHtml(dest.id)}" class="w-full py-1 bg-sky-500 hover:bg-sky-600 text-white rounded text-xs font-bold transition-colors cursor-pointer">
             Plan Trip
           </button>
         `;
@@ -150,10 +151,10 @@ const InteractiveMapImpl: React.FC<InteractiveMapProps> = ({
 
         marker.bindPopup(`
           <div class="p-1.5 text-slate-800">
-            <span class="text-[10px] uppercase tracking-wider font-bold text-sky-600">${act.timeOfDay}</span>
-            <div class="font-bold text-xs mt-0.5">${act.title}</div>
-            <div class="text-[11px] text-slate-500">${act.location}</div>
-            <div class="text-[11px] font-semibold text-emerald-600 mt-1">Est. Cost: $${act.estimatedCost}</div>
+            <span class="text-[10px] uppercase tracking-wider font-bold text-sky-600">${escapeHtml(act.timeOfDay)}</span>
+            <div class="font-bold text-xs mt-0.5">${escapeHtml(act.title)}</div>
+            <div class="text-[11px] text-slate-500">${escapeHtml(act.location)}</div>
+            <div class="text-[11px] font-semibold text-emerald-600 mt-1">Est. Cost: $${Number(act.estimatedCost)}</div>
           </div>
         `);
       });
@@ -173,7 +174,7 @@ const InteractiveMapImpl: React.FC<InteractiveMapProps> = ({
   }, [destinations, activities, center, zoom, onSelectDestination]);
 
   return (
-    <div className="relative w-full rounded-2xl overflow-hidden border border-stone-200 dark:border-stone-800 shadow-md">
+    <div className="relative isolate w-full rounded-2xl overflow-hidden border border-stone-200 dark:border-stone-800 shadow-md">
       <div ref={mapRef} style={{ height }} className="w-full" />
     </div>
   );

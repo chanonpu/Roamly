@@ -117,6 +117,7 @@ export const AiTravelAssistant: React.FC<AiTravelAssistantProps> = ({
           type="text"
           value={inputQuery}
           onChange={e => setInputQuery(e.target.value)}
+          maxLength={1000}
           onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
           placeholder="Ask tipping, transit, weather..."
           className="flex-1 px-3 py-2 rounded-xl bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-sky-600/40"

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import { optionalAuth, AuthedRequest } from '../middleware/auth.js';
+import { analyticsLimiter } from '../middleware/rateLimit.js';
 import { logEvent, AnalyticsEventType } from '../services/analytics.js';
 
 export const analyticsRouter = Router();
@@ -22,7 +23,7 @@ const eventSchema = z.object({
 
 // Public + optionalAuth: we want to log anonymous (not-yet-signed-in)
 // activity too — that's a lot of the point of tracking search behavior.
-analyticsRouter.post('/events', optionalAuth, asyncHandler(async (req: AuthedRequest, res) => {
+analyticsRouter.post('/events', optionalAuth, analyticsLimiter, asyncHandler(async (req: AuthedRequest, res) => {
   const body = eventSchema.parse(req.body);
   await logEvent(body.eventType, body.metadata, req.user?.id ?? null);
   res.status(204).send();

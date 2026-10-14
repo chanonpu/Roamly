@@ -211,6 +211,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
               type="text"
               value={newCountryInput}
               onChange={e => setNewCountryInput(e.target.value)}
+              maxLength={60}
               onKeyDown={e => { if (e.key === 'Enter') handleAddCustomCountry(); }}
               placeholder="Add another country name..."
               className="flex-1 px-3 py-2 rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
